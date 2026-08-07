@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C案: LIG型ポータル構成 × フィールドノートトーン — はだしノート（仮）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F3EC;
+    --bg-soft:#EFEAE0;
+    --ink:#28241C;
+    --ink-soft:#6E675B;
+    --line:#DAD3C5;
+    --green:#42603B;
+    --green-deep:#33492E;
+    --serif:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;
+    --sans:"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.85;-webkit-font-smoothing:antialiased}
+  .container{max-width:1160px;margin:0 auto;padding:0 28px}
+  a{color:inherit;text-decoration:none}
+
+  /* ---- header ---- */
+  header{position:sticky;top:0;background:rgba(246,243,236,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);z-index:50}
+  .nav{display:flex;align-items:center;height:60px;gap:32px}
+  .logo{font-family:var(--serif);font-weight:700;font-size:20px;letter-spacing:.05em;flex-shrink:0}
+  .logo small{font-family:var(--mono);font-weight:400;font-size:9px;color:var(--ink-soft);letter-spacing:.14em;display:block;line-height:1.1}
+  .nav-links{display:flex;gap:26px;font-size:13.5px;font-weight:500}
+  .nav-links a{padding:4px 0;position:relative}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--green);transition:width .25s ease-out}
+  .nav-links a:hover::after{width:100%}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:16px}
+  .search{display:flex;align-items:center;gap:8px;border:1px solid var(--line);padding:7px 14px;border-radius:2px;font-size:12.5px;color:var(--ink-soft);background:#fff}
+  .nav-cta{font-size:12.5px;font-weight:700;color:#fff;background:var(--green);padding:9px 16px;border-radius:2px}
+  .nav-cta:hover{background:var(--green-deep)}
+
+  /* ---- section head ---- */
+  .sec-head{display:flex;align-items:baseline;gap:14px;border-top:1px solid var(--ink);padding-top:16px;margin-bottom:28px}
+  .sec-en{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--green)}
+  .sec-head h2{font-family:var(--serif);font-size:22px;font-weight:600}
+  .sec-more{margin-left:auto;display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500}
+  .sec-more svg{transition:transform .2s ease-out}
+  .sec-more:hover svg{transform:translateX(4px)}
+
+  /* ---- pickup ---- */
+  .pickup{padding:44px 0 8px}
+  .pickup-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+  .pk{display:block}
+  .pk-photo{aspect-ratio:16/9;border-radius:2px;overflow:hidden;position:relative}
+  .pk-photo .fill{width:100%;height:100%;transition:transform .5s ease-out}
+  .pk:hover .fill{transform:scale(1.03)}
+  .g1{background:linear-gradient(150deg,#8a9a7b,#3d4f37)}
+  .g2{background:linear-gradient(150deg,#b7a98d,#6f5847)}
+  .g3{background:linear-gradient(150deg,#9aa8b5,#5f6f7d)}
+  .g4{background:linear-gradient(150deg,#c2b49b,#8c7e63)}
+  .g5{background:linear-gradient(150deg,#a9917c,#6b5344)}
+  .g6{background:linear-gradient(150deg,#95a58e,#4c5d45)}
+  .ph-note{position:absolute;left:12px;bottom:10px;font-family:var(--mono);font-size:9.5px;color:rgba(255,255,255,.8)}
+  .cat{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--green)}
+  .pk .cat{margin-top:16px;display:block}
+  .pk h3{font-family:var(--serif);font-size:21px;font-weight:600;line-height:1.6;margin-top:6px}
+  .meta{font-size:11.5px;color:var(--ink-soft);margin-top:8px;font-family:var(--mono)}
+
+  /* ---- layout: main + sidebar ---- */
+  .body-grid{display:grid;grid-template-columns:1fr 320px;gap:56px;padding:56px 0 72px}
+
+  /* ---- latest cards ---- */
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:36px 32px}
+  .card{display:block}
+  .card-photo{aspect-ratio:16/10;border-radius:2px;overflow:hidden;position:relative}
+  .card-photo .fill{width:100%;height:100%;transition:transform .5s ease-out}
+  .card:hover .fill{transform:scale(1.04)}
+  .card .cat{margin-top:14px;display:block}
+  .card h3{font-family:var(--serif);font-size:16.5px;font-weight:600;line-height:1.7;margin-top:5px}
+  .databar{display:inline-flex;gap:14px;margin-top:10px;font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:8px;font-variant-numeric:tabular-nums}
+  .databar b{color:var(--ink);font-weight:500}
+  .pager{margin-top:44px;display:flex;justify-content:center;gap:8px}
+  .pager a{width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--line);font-family:var(--mono);font-size:12.5px;border-radius:2px}
+  .pager a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .pager a:hover:not(.on){border-color:var(--ink)}
+
+  /* ---- sidebar ---- */
+  aside{display:flex;flex-direction:column;gap:44px}
+  .side-head{display:flex;align-items:baseline;gap:10px;border-top:1px solid var(--ink);padding-top:12px;margin-bottom:18px}
+  .side-head .sec-en{font-size:10px}
+  .side-head h4{font-family:var(--serif);font-size:15.5px;font-weight:600}
+
+  .author{background:#fff;border:1px solid var(--line);border-radius:2px;padding:24px}
+  .author-photo{width:76px;height:76px;border-radius:50%;background:linear-gradient(150deg,#8a9a7b,#3d4f37);position:relative;overflow:hidden}
+  .author h5{font-family:var(--serif);font-size:16px;font-weight:600;margin-top:14px}
+  .author p{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.8}
+  .author .databar{margin-top:14px}
+  .author-link{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:500;color:var(--green);margin-top:12px}
+
+  .rank{list-style:none}
+  .rank li{border-bottom:1px solid var(--line)}
+  .rank a{display:flex;gap:14px;padding:14px 2px;align-items:baseline;transition:padding-left .2s ease-out}
+  .rank a:hover{padding-left:8px}
+  .rank .no{font-family:var(--mono);font-size:15px;color:var(--green);flex-shrink:0;font-variant-numeric:tabular-nums}
+  .rank .t{font-size:13px;font-weight:500;line-height:1.7}
+
+  .side-news{background:var(--green-deep);color:#F2EFE6;border-radius:2px;padding:26px 24px}
+  .side-news h5{font-family:var(--serif);font-size:16.5px;font-weight:600;color:#fff;line-height:1.7}
+  .side-news p{font-size:12px;color:#CFD8C3;margin-top:10px}
+  .side-form{margin-top:16px;display:flex}
+  .side-form input{flex:1;border:1px solid #5E7852;background:#2C3F28;color:#fff;padding:11px 12px;font-size:12.5px;border-radius:2px 0 0 2px;outline:none;min-width:0}
+  .side-form input::placeholder{color:#8FA383}
+  .side-form button{border:none;background:#F2EFE6;color:var(--green-deep);font-weight:700;font-size:12.5px;padding:0 16px;border-radius:0 2px 2px 0;cursor:pointer}
+  .side-micro{font-size:10.5px;color:#9FB292;margin-top:10px;font-family:var(--mono)}
+
+  .cats{display:flex;flex-wrap:wrap;gap:8px}
+  .cats a{font-size:12px;font-weight:500;border:1px solid var(--line);background:#fff;padding:7px 14px;border-radius:999px;transition:all .15s}
+  .cats a:hover{border-color:var(--green);color:var(--green)}
+
+  /* ---- series band ---- */
+  .series{background:var(--bg-soft);padding:64px 0}
+  .series-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+  .sr{background:#fff;border:1px solid var(--line);border-radius:2px;padding:28px;display:flex;gap:22px;align-items:center;transition:border-color .15s}
+  .sr:hover{border-color:var(--green)}
+  .sr-num{font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.14em}
+  .sr h3{font-family:var(--serif);font-size:18px;font-weight:600;margin-top:6px;line-height:1.6}
+  .sr p{font-size:12.5px;color:var(--ink-soft);margin-top:8px}
+  .sr-photo{width:110px;height:110px;border-radius:2px;flex-shrink:0;overflow:hidden}
+  .sr-photo div{width:100%;height:100%}
+
+  /* ---- footer ---- */
+  footer{border-top:1px solid var(--line);padding:44px 0 56px}
+  .foot{display:flex;justify-content:space-between;gap:32px;font-size:13px;color:var(--ink-soft)}
+  .foot-links{display:flex;gap:24px}
+  .copyright{font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-top:36px}
+
+  @media(max-width:960px){
+    .nav-links,.search{display:none}
+    .pickup-grid{grid-template-columns:1fr}
+    .body-grid{grid-template-columns:1fr}
+    .cards{grid-template-columns:1fr}
+    .series-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="#" class="logo">はだしノート<small>HADASHI FIELD NOTE — 仮称</small></a>
+    <nav class="nav-links">
+      <a href="#">はじめての方へ</a>
+      <a href="#">レビュー</a>
+      <a href="#">比較・選び方</a>
+      <a href="#">足の悩み</a>
+      <a href="#">畑から</a>
+    </nav>
+    <div class="nav-right">
+      <div class="search">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        記事を探す
+      </div>
+      <a href="#" class="nav-cta">移行30日ガイド</a>
+    </div>
+  </div>
+</header>
+
+<div class="pickup">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-en">PICKUP</span>
+      <h2>編集部おすすめ</h2>
+    </div>
+    <div class="pickup-grid">
+      <a href="#" class="pk">
+        <div class="pk-photo"><div class="fill g1"></div><span class="ph-note">写真: 泥の畦道と建さんII（実写に差し替え）</span></div>
+        <span class="cat">REVIEW / WORKMAN</span>
+        <h3>ワークマン「建さんII」は1,900円の実質ベアフットなのか。畑で30日履いた記録</h3>
+        <p class="meta">2026.08.06 — 実測: 158g / ソール6.0mm / 浸水8分</p>
+      </a>
+      <a href="#" class="pk">
+        <div class="pk-photo"><div class="fill g2"></div><span class="ph-note">写真: 移行1日目の足元（実写に差し替え）</span></div>
+        <span class="cat">GUIDE / 移行</span>
+        <h3>ベアフットシューズの慣らし方。失敗しない30日移行計画のすべて</h3>
+        <p class="meta">2026.08.06 — 無料PDFカレンダー付き</p>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="container body-grid">
+  <main>
+    <div class="sec-head">
+      <span class="sec-en">LATEST</span>
+      <h2>新着記事</h2>
+    </div>
+    <div class="cards">
+      <a href="#" class="card">
+        <div class="card-photo"><div class="fill g3"></div></div>
+        <span class="cat">REVIEW / MERRELL</span>
+        <h3>ベイパーグローブ6のサイズ感。0.5cm上げが正解だった理由と1ヶ月ログ</h3>
+        <div class="databar"><span><b>171g</b> 片足</span><span><b>5.0mm</b> ソール</span><span>2026.08.05</span></div>
+      </a>
+      <a href="#" class="card">
+        <div class="card-photo"><div class="fill g4"></div></div>
+        <span class="cat">GUIDE / 比較</span>
+        <h3>5,000円以下のベアフットシューズ4足を同条件で比較した</h3>
+        <div class="databar"><span><b>4足</b> 実測</span><span><b>30日</b> テスト</span><span>2026.08.03</span></div>
+      </a>
+      <a href="#" class="card">
+        <div class="card-photo"><div class="fill g5"></div></div>
+        <span class="cat">HEALTH / 外反母趾</span>
+        <h3>外反母趾にベアフットシューズは効くのか。両論をエビデンスで整理する</h3>
+        <div class="databar"><span><b>研究7本</b> 参照</span><span>2026.08.01</span></div>
+      </a>
+      <a href="#" class="card">
+        <div class="card-photo"><div class="fill g6"></div></div>
+        <span class="cat">FIELD / 畑から</span>
+        <h3>農作業の靴は長靴だけじゃない。疲れない足元の作り方</h3>
+        <div class="databar"><span><b>1ha</b> の畑で検証</span><span>2026.07.30</span></div>
+      </a>
+      <a href="#" class="card">
+        <div class="card-photo"><div class="fill g2"></div></div>
+        <span class="cat">GUIDE / 歩き方</span>
+        <h3>かかと着地をやめる練習法。ベアフットの歩き方を4週間で作る</h3>
+        <div class="databar"><span><b>4週間</b> メニュー</span><span>2026.07.27</span></div>
+      </a>
+      <a href="#" class="card">
+        <div class="card-photo"><div class="fill g1"></div></div>
+        <span class="cat">REVIEW / SAGUARO</span>
+        <h3>3,500円のSAGUARO正直レビュー。買っていい人・やめたほうがいい人</h3>
+        <div class="databar"><span><b>146g</b> 片足</span><span><b>30日</b> テスト</span><span>2026.07.24</span></div>
+      </a>
+    </div>
+    <div class="pager">
+      <a href="#" class="on">1</a><a href="#">2</a><a href="#">3</a>
+      <a href="#"><svg width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M1.5 1l5 5-5 5" stroke="currentColor" stroke-width="1.5"/></svg></a>
+    </div>
+  </main>
+
+  <aside>
+    <div>
+      <div class="author">
+        <div class="author-photo"><span class="ph-note" style="font-size:8px">著者近影</span></div>
+        <h5>近藤 泰樹</h5>
+        <p>熊本・山鹿で無施肥無農薬の畑1haを耕す農家。すべての靴を畑の泥・雨・砂利で最低30日テストしてから書いています。</p>
+        <div class="databar"><span><b>10足</b> テスト中</span><span><b>412km</b> 累計</span></div>
+        <a href="#" class="author-link">テストの方針を読む
+          <svg width="20" height="10" viewBox="0 0 26 10" fill="none"><path d="M0 5h18M14 1l4 4-4 4" stroke="currentColor" stroke-width="1.4"/></svg></a>
+      </div>
+    </div>
+
+    <div>
+      <div class="side-head"><span class="sec-en">MOST READ</span><h4>よく読まれている記事</h4></div>
+      <ol class="rank">
+        <li><a href="#"><span class="no">01</span><span class="t">ベアフットシューズのデメリット7つと対処法</span></a></li>
+        <li><a href="#"><span class="no">02</span><span class="t">建さんIIを畑で30日履いた記録</span></a></li>
+        <li><a href="#"><span class="no">03</span><span class="t">失敗しない30日移行計画のすべて</span></a></li>
+        <li><a href="#"><span class="no">04</span><span class="t">幅広・甲高の足に合う一足の探し方</span></a></li>
+        <li><a href="#"><span class="no">05</span><span class="t">浮き指セルフチェックと7日メニュー</span></a></li>
+      </ol>
+    </div>
+
+    <div class="side-news">
+      <h5>移行30日カレンダー（PDF）を無料配布中</h5>
+      <p>足を慣らしながら移行する30日間の計画表。メール登録の方にお送りします。</p>
+      <div class="side-form">
+        <input type="email" placeholder="メールアドレス">
+        <button>受け取る</button>
+      </div>
+      <p class="side-micro">週1通 / 1クリックで解除できます</p>
+    </div>
+
+    <div>
+      <div class="side-head"><span class="sec-en">CATEGORY</span><h4>カテゴリから探す</h4></div>
+      <div class="cats">
+        <a href="#">はじめてのベアフット</a><a href="#">レビュー</a><a href="#">比較・選び方</a>
+        <a href="#">外反母趾</a><a href="#">足底筋膜炎</a><a href="#">足指トレーニング</a>
+        <a href="#">ランニング</a><a href="#">普段履き</a><a href="#">畑・外仕事</a><a href="#">地下足袋</a>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div class="series">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-en">SERIES</span>
+      <h2>連載</h2>
+    </div>
+    <div class="series-grid">
+      <a href="#" class="sr">
+        <div>
+          <span class="sr-num">SERIES 01</span>
+          <h3>畑テスト — 泥・雨・砂利の30日</h3>
+          <p>すべての靴を同じ畑・同じ4項目（雨天グリップ / 泥詰まり / 浸水時間 / ソール摩耗）で計測する定点レビュー連載。</p>
+        </div>
+        <div class="sr-photo"><div class="g1"></div></div>
+      </a>
+      <a href="#" class="sr">
+        <div>
+          <span class="sr-num">SERIES 02</span>
+          <h3>足を育てる — 悩み別・機能回復ガイド</h3>
+          <p>外反母趾・浮き指・足底筋膜炎。「支える」ではなく「鍛える」側からの選択肢を、エビデンスと実体験で整理する連載。</p>
+        </div>
+        <div class="sr-photo"><div class="g4"></div></div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="foot">
+      <p>はだしノート（仮称） — 熊本・山鹿の畑から、実測で書くベアフットシューズメディア</p>
+      <nav class="foot-links">
+        <a href="#">運営者について</a>
+        <a href="#">テストポリシー</a>
+        <a href="#">お問い合わせ</a>
+      </nav>
+    </div>
+    <p class="copyright">© 2026 HADASHI FIELD NOTE（仮称） — design mock C（LIG型ポータル構成）</p>
+  </div>
+</footer>
+
+</body>
+</html>

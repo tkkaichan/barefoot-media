@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B案: 計測レポート・ミニマル — HADASHI NOTE（仮）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBFBF8;          /* neutral off-white */
+    --ink:#191917;
+    --ink-soft:#66655F;
+    --line:#E2E0D8;
+    --line-strong:#191917;
+    --accent:#C8451B;      /* 朱 = single accent: CTA・リンク・現在地のみ */
+    --sans:"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.9;-webkit-font-smoothing:antialiased}
+  .container{max-width:1200px;margin:0 auto;padding:0 32px}
+  a{color:inherit;text-decoration:none}
+
+  /* ------- header ------- */
+  header{position:sticky;top:0;background:rgba(251,251,248,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--line-strong);z-index:50}
+  .nav{display:flex;align-items:center;height:60px;gap:40px}
+  .logo{font-weight:900;font-size:17px;letter-spacing:.04em}
+  .logo span{font-family:var(--mono);font-weight:400;font-size:10px;color:var(--ink-soft);margin-left:10px;letter-spacing:.1em}
+  .nav-links{display:flex;gap:32px;font-size:13.5px;font-weight:500;margin-left:auto}
+  .nav-links a{display:inline-flex;align-items:baseline;gap:6px}
+  .nav-links a i{font-family:var(--mono);font-style:normal;font-size:10px;color:var(--ink-soft)}
+  .nav-links a:hover{color:var(--accent)}
+  .nav-cta{font-size:13px;font-weight:700;color:#fff;background:var(--ink);padding:9px 18px;transition:background .15s}
+  .nav-cta:hover{background:var(--accent)}
+
+  /* ------- hero ------- */
+  .hero{border-bottom:1px solid var(--line-strong);padding:88px 0 0}
+  .hero h1{font-weight:900;font-size:clamp(38px,5.6vw,72px);line-height:1.32;letter-spacing:-.02em;text-wrap:balance;max-width:22em}
+  .hero h1 em{font-style:normal;color:var(--accent)}
+  .hero-lead{margin-top:28px;font-size:15.5px;color:var(--ink-soft);max-width:40em}
+  .hero-actions{margin:40px 0 64px;display:flex;gap:16px}
+  .btn{display:inline-flex;align-items:center;gap:10px;font-weight:700;font-size:14.5px;padding:15px 26px;transition:all .15s ease-out}
+  .btn-fill{background:var(--accent);color:#fff}
+  .btn-fill:hover{background:#A83812}
+  .btn-line{border:1px solid var(--ink);color:var(--ink)}
+  .btn-line:hover{background:var(--ink);color:#fff}
+  .chev{transition:transform .2s ease-out}
+  .btn:hover .chev,.rowlink:hover .chev{transform:translateX(3px)}
+
+  /* stats bar */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line-strong)}
+  .stat{padding:24px 28px;border-left:1px solid var(--line)}
+  .stat:first-child{border-left:none;padding-left:0}
+  .stat b{font-family:var(--mono);font-weight:600;font-size:30px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;display:block;line-height:1.2}
+  .stat span{font-size:12px;color:var(--ink-soft);letter-spacing:.04em}
+
+  /* ------- section ------- */
+  section{padding:80px 0}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:40px}
+  .sec-num{font-family:var(--mono);font-size:12px;color:var(--ink-soft)}
+  h2{font-weight:900;font-size:26px;letter-spacing:-.01em}
+  .rowlink{margin-left:auto;display:inline-flex;align-items:center;gap:8px;font-size:13.5px;font-weight:500;color:var(--accent)}
+
+  /* ------- exposed-grid review table ------- */
+  .grid-table{border:1px solid var(--line-strong)}
+  .gt-head,.gt-row{display:grid;grid-template-columns:3.2fr 1fr 1fr 1fr 1.4fr}
+  .gt-head{border-bottom:1px solid var(--line-strong);font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--ink-soft)}
+  .gt-head div{padding:12px 20px;border-left:1px solid var(--line)}
+  .gt-head div:first-child{border-left:none}
+  .gt-row{border-bottom:1px solid var(--line);transition:background .15s}
+  .gt-row:last-child{border-bottom:none}
+  .gt-row:hover{background:#F3F2EC}
+  .gt-row>div{padding:22px 20px;border-left:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+  .gt-row>div:first-child{border-left:none}
+  .gt-name{font-weight:700;font-size:16.5px;line-height:1.5}
+  .gt-name small{display:block;font-weight:400;font-size:12px;color:var(--ink-soft);margin-top:4px}
+  .num{font-family:var(--mono);font-size:16px;font-variant-numeric:tabular-nums}
+  .num small{font-size:10.5px;color:var(--ink-soft);display:block;letter-spacing:.06em}
+  .gt-link{color:var(--accent);font-weight:500;font-size:13.5px;display:inline-flex;align-items:center;gap:8px}
+  .table-note{font-size:12px;color:var(--ink-soft);margin-top:14px;font-family:var(--mono)}
+
+  /* ------- topic cells ------- */
+  .cells{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line-strong)}
+  .cell{padding:32px 28px;border-left:1px solid var(--line);position:relative;transition:background .15s}
+  .cell:first-child{border-left:none}
+  .cell:hover{background:#F3F2EC}
+  .cell i{font-family:var(--mono);font-style:normal;font-size:11px;color:var(--ink-soft)}
+  .cell h3{font-weight:700;font-size:17.5px;margin:14px 0 10px;line-height:1.6}
+  .cell p{font-size:13.5px;color:var(--ink-soft)}
+  .cell .rowlink{margin-top:20px;margin-left:0}
+
+  /* ------- policy band ------- */
+  .policy{background:var(--ink);color:#F2F1EA;padding:88px 0}
+  .policy-grid{display:grid;grid-template-columns:5fr 7fr;gap:72px}
+  .policy h2{color:#fff}
+  .policy .sec-num{color:#8B8A80}
+  .policy p.lead{color:#B9B8AC;font-size:14.5px;margin-top:20px}
+  .p-metrics{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  .p-metric{border-top:1px solid #3B3A35;padding:24px 4px}
+  .p-metric:nth-child(-n+2){border-top:1px solid #F2F1EA}
+  .p-metric dt{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:#E88B63;margin-bottom:8px}
+  .p-metric dd{font-size:13px;color:#B9B8AC;line-height:1.8}
+
+  /* ------- newsletter ------- */
+  .news{border-bottom:1px solid var(--line-strong)}
+  .news-grid{display:grid;grid-template-columns:7fr 5fr;gap:72px;align-items:center}
+  .news h2{font-size:30px;line-height:1.5}
+  .news p{color:var(--ink-soft);font-size:14px;margin-top:16px}
+  .news-form{display:flex;border:1px solid var(--ink)}
+  .news-form input{flex:1;border:none;background:transparent;padding:16px 18px;font-size:14px;outline:none;color:var(--ink)}
+  .news-form button{border:none;background:var(--ink);color:#fff;font-weight:700;font-size:14px;padding:0 24px;cursor:pointer;transition:background .15s}
+  .news-form button:hover{background:var(--accent)}
+  .news-micro{font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-top:12px}
+
+  /* ------- footer ------- */
+  footer{padding:44px 0 56px}
+  .foot{display:flex;justify-content:space-between;gap:32px;font-size:13px;color:var(--ink-soft)}
+  .foot-links{display:flex;gap:24px}
+  .copyright{font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-top:36px}
+
+  @media(max-width:900px){
+    .nav-links{display:none}
+    .stats{grid-template-columns:1fr 1fr}
+    .stat{padding:20px}
+    .stat:nth-child(odd){border-left:none;padding-left:0}
+    .gt-head{display:none}
+    .gt-row{grid-template-columns:1fr 1fr}
+    .gt-row>div:first-child{grid-column:1/-1}
+    .cells{grid-template-columns:1fr}
+    .cell{border-left:none;border-top:1px solid var(--line)}
+    .cell:first-child{border-top:none}
+    .policy-grid,.news-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="#" class="logo">HADASHI NOTE<span>仮称 / barefoot field data</span></a>
+    <nav class="nav-links">
+      <a href="#"><i>01</i>はじめに</a>
+      <a href="#"><i>02</i>レビュー</a>
+      <a href="#"><i>03</i>比較データ</a>
+      <a href="#"><i>04</i>足の悩み</a>
+    </nav>
+    <a href="#" class="nav-cta">移行30日ガイド</a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="container">
+    <h1>ベアフットシューズを、<br><em>畑で計測</em>してから<br>すすめるメディア。</h1>
+    <p class="hero-lead">カタログ値ではなく実測値。感想ではなく記録。熊本の農家が泥・雨・砂利の上で履き込んだデータだけを載せています。</p>
+    <div class="hero-actions">
+      <a href="#" class="btn btn-fill">入門ガイドを読む
+        <svg class="chev" width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M1.5 1l5 5-5 5" stroke="currentColor" stroke-width="1.6"/></svg>
+      </a>
+      <a href="#" class="btn btn-line">計測方法について</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>10<span style="font-size:16px">足</span></b><span>同一条件でテスト中</span></div>
+      <div class="stat"><b>412<span style="font-size:16px">km</span></b><span>累計テスト距離</span></div>
+      <div class="stat"><b>4<span style="font-size:16px">項目</span></b><span>全足共通の計測基準</span></div>
+      <div class="stat"><b>30<span style="font-size:16px">日+</span></b><span>1足あたり最低テスト日数</span></div>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-num">01 / REVIEWS</span>
+      <h2>実測レビュー</h2>
+      <a href="#" class="rowlink">すべての計測データ
+        <svg class="chev" width="8" height="12" viewBox="0 0 8 12" fill="none"><path d="M1.5 1l5 5-5 5" stroke="currentColor" stroke-width="1.6"/></svg>
+      </a>
+    </div>
+    <div class="grid-table">
+      <div class="gt-head">
+        <div>MODEL</div><div>WEIGHT</div><div>SOLE</div><div>WATER</div><div>REPORT</div>
+      </div>
+      <div class="gt-row">
+        <div class="gt-name">ワークマン 建さんII<small>1,900円 / 作業靴 — 実質ベアフット検証</small></div>
+        <div class="num">158<small>g / 片足</small></div>
+        <div class="num">6.0<small>mm 実測</small></div>
+        <div class="num">8<small>分で浸水</small></div>
+        <div><a href="#" class="gt-link">30日レポート
+          <svg class="chev" width="7" height="11" viewBox="0 0 8 12" fill="none"><path d="M1.5 1l5 5-5 5" stroke="currentColor" stroke-width="1.6"/></svg></a></div>
+      </div>
+      <div class="gt-row">
+        <div class="gt-name">Merrell Vapor Glove 6<small>9,900円 / 入門定番 — 通勤・畑の併用テスト</small></div>
+        <div class="num">171<small>g / 片足</small></div>
+        <div class="num">5.0<small>mm 実測</small></div>
+        <div class="num">22<small>分で浸水</small></div>
+        <div><a href="#" class="gt-link">30日レポート
+          <svg class="chev" width="7" height="11" viewBox="0 0 8 12" fill="none"><path d="M1.5 1l5 5-5 5" stroke="currentColor" stroke-width="1.6"/></svg></a></div>
+      </div>
+      <div class="gt-row">
+        <div class="gt-name">丸五 たびりら<small>5,000円 / 地下足袋系 — 「和製ベアフット」検証</small></div>
+        <div class="num">139<small>g / 片足</small></div>
+        <div class="num">4.5<small>mm 実測</small></div>
+        <div class="num">11<small>分で浸水</small></div>
+        <div><a href="#" class="gt-link">30日レポート
+          <svg class="chev" width="7" height="11" viewBox="0 0 8 12" fill="none"><path d="M1.5 1l5 5-5 5" stroke="currentColor" stroke-width="1.6"/></svg></a></div>
+      </div>
+    </div>
+    <p class="table-note">* 数値はモック用のダミー。実測値は計測日・条件と併記して掲載</p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="container">
+    <div class="sec-head">
+      <span class="sec-num">02 / TOPICS</span>
+      <h2>足の悩みから探す</h2>
+    </div>
+    <div class="cells">
+      <div class="cell">
+        <i>a. GAIHANBOSHI</i>
+        <h3>外反母趾にベアフットは効くのか</h3>
+        <p>「鍛える派」と「支える派」の両論をエビデンスで整理。受診すべきラインも明記します。</p>
+        <a href="#" class="rowlink">読む
+          <svg class="chev" width="7" height="11" viewBox="0 0 8 12" fill="none"><path d="M1.5 1l5 5-5 5" stroke="currentColor" stroke-width="1.6"/></svg></a>
+      </div>
+      <div class="cell">
+        <i>b. SOKUTEIKINMAKUEN</i>
+        <h3>足底筋膜炎と靴選びの注意点</h3>
+        <p>移行でやってはいけないことから。痛みがある間の優先順位を整理します。</p>
+        <a href="#" class="rowlink">読む
+          <svg class="chev" width="7" height="11" viewBox="0 0 8 12" fill="none"><path d="M1.5 1l5 5-5 5" stroke="currentColor" stroke-width="1.6"/></svg></a>
+      </div>
+      <div class="cell">
+        <i>c. UKIYUBI</i>
+        <h3>浮き指チェックと足指の7日メニュー</h3>
+        <p>床とタオルだけでできるセルフチェックと、1日5分のトレーニング計画。</p>
+        <a href="#" class="rowlink">読む
+          <svg class="chev" width="7" height="11" viewBox="0 0 8 12" fill="none"><path d="M1.5 1l5 5-5 5" stroke="currentColor" stroke-width="1.6"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="policy">
+  <div class="container policy-grid">
+    <div>
+      <div class="sec-head" style="margin-bottom:16px">
+        <span class="sec-num">03 / TEST POLICY</span>
+      </div>
+      <h2>泥・雨・砂利。<br>毎日が試験場です。</h2>
+      <p class="lead">運営者は熊本・山鹿で無施肥無農薬の畑1haを耕す農家。すべての靴を同じ畑・同じ基準でテストします。メーカーからの提供品もレビュー基準は変えません。</p>
+    </div>
+    <dl class="p-metrics">
+      <div class="p-metric"><dt>WET GRIP</dt><dd>雨天の畦道と濡れたコンクリートでの滑りを5段階評価</dd></div>
+      <div class="p-metric"><dt>MUD CLOGGING</dt><dd>ソールパターンの泥詰まりと水洗いでの落ちやすさ</dd></div>
+      <div class="p-metric"><dt>WATER INTRUSION</dt><dd>朝露の草地で浸水までの時間を分単位で記録</dd></div>
+      <div class="p-metric"><dt>SOLE WEAR</dt><dd>累計歩行距離に対する摩耗の進行を定点撮影</dd></div>
+    </dl>
+  </div>
+</div>
+
+<section class="news">
+  <div class="container news-grid">
+    <div>
+      <h2>移行30日カレンダー（PDF）を<br>無料配布しています</h2>
+      <p>ベアフット移行の失敗のほとんどは「急ぎすぎ」。足を慣らしながら移行する30日間の計画表をメールでお送りします。週1通、いつでも解除できます。</p>
+    </div>
+    <div>
+      <div class="news-form">
+        <input type="email" placeholder="メールアドレス">
+        <button>受け取る</button>
+      </div>
+      <p class="news-micro">NO SPAM — 1-CLICK UNSUBSCRIBE</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="foot">
+      <p>HADASHI NOTE（仮称） — 熊本・山鹿の畑から、実測で書くベアフットシューズメディア</p>
+      <nav class="foot-links">
+        <a href="#">運営者について</a>
+        <a href="#">計測方法</a>
+        <a href="#">お問い合わせ</a>
+      </nav>
+    </div>
+    <p class="copyright">© 2026 HADASHI NOTE（仮称） — design mock B</p>
+  </div>
+</footer>
+
+</body>
+</html>

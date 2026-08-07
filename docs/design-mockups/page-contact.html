@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>お問い合わせ — はだしノート（仮）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F4F4;--bg-soft:#EBEBEB;--ink:#222220;--ink-soft:#6B6B67;--line:#DFDFDD;
+    --accent:#42603B;--accent-deep:#33492E;
+    --serif:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;
+    --sans:"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.95;-webkit-font-smoothing:antialiased}
+  .container{max-width:1160px;margin:0 auto;padding:0 28px}
+  a{color:inherit;text-decoration:none}
+  header{position:sticky;top:0;background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);z-index:50}
+  .nav{display:flex;align-items:center;height:60px;gap:32px}
+  .logo{font-family:var(--serif);font-weight:700;font-size:20px;letter-spacing:.05em;flex-shrink:0}
+  .logo small{font-family:var(--mono);font-weight:400;font-size:9px;color:var(--ink-soft);letter-spacing:.14em;display:block;line-height:1.1}
+  .nav-links{display:flex;gap:26px;font-size:13.5px;font-weight:500}
+  .nav-links a{padding:4px 0;position:relative}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--accent);transition:width .25s ease-out}
+  .nav-links a:hover::after{width:100%}
+  .nav-right{margin-left:auto}
+  .nav-cta{font-size:12.5px;font-weight:700;color:#fff;background:var(--accent);padding:9px 16px;border-radius:2px}
+  .nav-cta:hover{background:var(--accent-deep)}
+
+  .crumbs{font-size:12px;color:var(--ink-soft);padding:20px 0 0;display:flex;gap:8px;align-items:center}
+  .page-head{padding:36px 0 28px;border-bottom:1px solid var(--line)}
+  .page-en{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--accent)}
+  h1{font-family:var(--serif);font-size:32px;font-weight:600;letter-spacing:.02em;margin-top:10px}
+  .page-lead{margin-top:12px;font-size:13.5px;color:var(--ink-soft);max-width:42em}
+
+  .doc{max-width:680px;padding:48px 0 88px}
+  .form{background:#fff;border:1px solid var(--line);border-radius:2px;padding:36px}
+  .field{margin-bottom:26px}
+  label{display:block;font-size:13.5px;font-weight:700;margin-bottom:8px}
+  label .opt{font-weight:400;font-size:11.5px;color:var(--ink-soft);margin-left:8px}
+  input[type=text],input[type=email],select,textarea{
+    width:100%;border:1px solid var(--line);border-radius:2px;background:var(--bg);
+    padding:13px 14px;font-size:14.5px;font-family:var(--sans);color:var(--ink);outline:none;
+    transition:border-color .15s, box-shadow .15s}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}
+  textarea{min-height:170px;resize:vertical}
+  .hint{font-size:12px;color:var(--ink-soft);margin-top:6px}
+  .submit{display:flex;align-items:center;gap:18px;margin-top:8px}
+  button{display:inline-flex;align-items:center;gap:12px;border:none;background:var(--accent);color:#fff;font-weight:700;font-size:15px;font-family:var(--sans);padding:15px 30px;border-radius:2px;cursor:pointer;transition:background .15s}
+  button:hover{background:var(--accent-deep)}
+  button svg{transition:transform .2s ease-out}
+  button:hover svg{transform:translateX(4px)}
+  .micro{font-size:11.5px;color:var(--ink-soft)}
+  .note{margin-top:28px;font-size:13px;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:20px}
+  .note b{font-weight:700;color:var(--ink)}
+  .todo{display:inline-block;background:#fff;border:1px dashed var(--line);border-radius:2px;color:var(--ink-soft);font-family:var(--mono);font-size:11px;padding:3px 10px;letter-spacing:.06em}
+
+  footer{border-top:1px solid var(--line);padding:44px 0 56px}
+  .foot{display:flex;justify-content:space-between;gap:32px;font-size:13px;color:var(--ink-soft)}
+  .foot-links{display:flex;gap:24px}
+  .copyright{font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-top:36px}
+  @media(max-width:960px){.nav-links{display:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="#" class="logo">はだしノート<small>HADASHI FIELD NOTE — 仮称</small></a>
+    <nav class="nav-links">
+      <a href="#">はじめての方へ</a><a href="#">レビュー</a><a href="#">比較・選び方</a><a href="#">足の悩み</a><a href="#">畑から</a>
+    </nav>
+    <div class="nav-right"><a href="#" class="nav-cta">移行30日ガイド</a></div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="page-head" style="padding-top:48px">
+    <p class="page-en">CONTACT</p>
+    <h1>お問い合わせ</h1>
+    <p class="page-lead">記事の内容、レビューのご依頼、取材・お仕事のご相談はこちらから。通常2〜3営業日以内に返信します。</p>
+  </div>
+
+  <div class="doc">
+    <div class="form">
+      <div class="field">
+        <label>お名前</label>
+        <input type="text" placeholder="例: 山田 太郎">
+      </div>
+      <div class="field">
+        <label>メールアドレス</label>
+        <input type="email" placeholder="例: yamada@example.com">
+        <p class="hint">返信先として使用します。それ以外の用途には使いません。</p>
+      </div>
+      <div class="field">
+        <label>お問い合わせの種類</label>
+        <select>
+          <option>記事内容について</option>
+          <option>レビュー・製品提供のご相談（メーカー様）</option>
+          <option>取材・お仕事のご依頼</option>
+          <option>その他</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>お問い合わせ内容</label>
+        <textarea placeholder="できるだけ具体的にお書きください"></textarea>
+      </div>
+      <div class="submit">
+        <button>送信する
+          <svg width="26" height="10" viewBox="0 0 26 10" fill="none"><path d="M0 5h24M20 1l4 4-4 4" stroke="currentColor" stroke-width="1.4"/></svg>
+        </button>
+        <p class="micro">送信前に<a href="#" style="color:var(--accent);font-weight:500">プライバシーポリシー</a>をご確認ください</p>
+      </div>
+      <p class="hint" style="margin-top:16px"><span class="todo">実装時: 送信ボタンは disabled → 送信中（スピナー）→ 完了（チェック）の3状態。バリデーションはインラインで即時に</span></p>
+    </div>
+
+    <p class="note"><b>メーカー・ブランドご担当者様へ</b><br>
+    製品のご提供は歓迎しますが、レビューの評価基準は購入品と同一です。「提供品である」ことは記事内に必ず明記し、内容の事前確認・修正のお約束はできかねます。この方針にご同意のうえでご連絡ください。</p>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="foot">
+      <p>はだしノート（仮称） — 熊本・山鹿の畑から書くベアフットシューズメディア</p>
+      <nav class="foot-links">
+        <a href="#">運営者情報</a><a href="#">テストポリシー</a><a href="#">プライバシーポリシー</a><a href="#">お問い合わせ</a>
+      </nav>
+    </div>
+    <p class="copyright">© 2026 HADASHI FIELD NOTE（仮称）</p>
+  </div>
+</footer>
+
+</body>
+</html>
