@@ -1,0 +1,98 @@
+---
+import type { SiteSettings } from '../lib/types'
+
+/**
+ * メール登録フォーム。
+ * JS 無しでも配信ツールのページに素で POST できるよう action / method を必ず出す。
+ * JS がある場合だけ fetch に横取りして、ページ遷移せず状態を出す。
+ * ダブルオプトインの確認メールは配信ツール側の設定で行う（REQUIREMENTS §5）。
+ */
+interface Props {
+  site: SiteSettings
+  variant: 'sidebar' | 'band'
+  /** 登録経路タグ。LM1 / LM2 と流入クラスタの判定に使う */
+  leadMagnet?: string
+  source?: string
+}
+const { site, variant, leadMagnet = 'LM1', source = '' } = Astro.props
+const endpoint = site.newsletterEndpoint ?? import.meta.env.PUBLIC_NEWSLETTER_ENDPOINT ?? ''
+const buttonLabel = site.newsletterButtonLabel ?? '受け取る'
+const formClass = variant === 'sidebar' ? 'side-form' : 'nb-form'
+const id = `nl-${variant}-${Math.random().toString(36).slice(2, 8)}`
+---
+
+<form class={formClass} action={endpoint} method="post" data-newsletter-form>
+  <label class="visually-hidden" for={id}>メールアドレス</label>
+  <input
+    id={id}
+    type="email"
+    name="email"
+    placeholder="メールアドレス"
+    autocomplete="email"
+    required
+  />
+  <!-- 登録経路タグ（LM1/LM2）と設置位置。配信ツール側でセグメントに使う -->
+  <input type="hidden" name="lead_magnet" value={leadMagnet} />
+  <input type="hidden" name="source" value={source} />
+  <!-- honeypot: 人間は入力しない。埋まっていたら送信を捨てる -->
+  <div class="hp" aria-hidden="true">
+    <label>
+      この欄は入力しないでください
+      <input type="text" name="company" tabindex="-1" autocomplete="off" />
+    </label>
+  </div>
+  <button type="submit">{buttonLabel}</button>
+</form>
+<p class="form-status" role="status" aria-live="polite" data-newsletter-status></p>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('[data-newsletter-form]').forEach((form) => {
+    const status = form.parentElement?.querySelector<HTMLElement>('[data-newsletter-status]')
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')
+
+    form.addEventListener('submit', async (event) => {
+      const honeypot = form.querySelector<HTMLInputElement>('input[name="company"]')
+      if (honeypot?.value) {
+        event.preventDefault()
+        return
+      }
+      if (!form.action) return // 送信先未設定ならブラウザ既定に任せる
+
+      event.preventDefault()
+      const original = button?.textContent ?? ''
+      if (button) {
+        button.disabled = true
+        button.textContent = '送信中'
+      }
+      if (status) {
+        status.textContent = ''
+        status.removeAttribute('data-state')
+      }
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        })
+        if (!response.ok) throw new Error(String(response.status))
+        form.reset()
+        if (status) status.textContent = '確認メールをお送りしました。メール内のリンクから登録を完了してください。'
+        // GA4 の登録CVイベント（記事別・CTA位置別に見るため）
+        const source = form.querySelector<HTMLInputElement>('input[name="source"]')?.value
+        const lm = form.querySelector<HTMLInputElement>('input[name="lead_magnet"]')?.value
+        ;(window as any).gtag?.('event', 'newsletter_signup', { cta_position: source, lead_magnet: lm })
+      } catch {
+        if (status) {
+          status.textContent = '送信できませんでした。時間をおいて再度お試しください。'
+          status.setAttribute('data-state', 'error')
+        }
+      } finally {
+        if (button) {
+          button.disabled = false
+          button.textContent = original
+        }
+      }
+    })
+  })
+</script>

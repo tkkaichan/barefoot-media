@@ -1,0 +1,48 @@
+---
+import { altText, imageUrl } from '../lib/image'
+import type { AuthorRef, ShoeSummary, SiteSettings } from '../lib/types'
+
+/**
+ * 記事末の著者ボックス（C5）。
+ * bio に加えて、その記事で扱ったモデルのテスト条件を1文で足す。
+ */
+interface Props {
+  author: AuthorRef
+  site: SiteSettings
+  shoes?: ShoeSummary[]
+}
+const { author, site, shoes = [] } = Astro.props
+
+// テスト条件の一文をDBから組み立てる（数字で語る・design-brief 8節）
+const testedShoe = shoes.find((s) => s.fieldTest?.testDays || s.fieldTest?.testDistanceKm)
+const f = testedShoe?.fieldTest
+const conditionParts = [
+  f?.testPeriod,
+  f?.surfaceBreakdown,
+  typeof f?.testDistanceKm === 'number' ? `累計${f.testDistanceKm}km` : null,
+].filter(Boolean)
+---
+
+<div class="a-author">
+  <div class="photo">
+    {
+      author.photo && (
+        <img
+          src={imageUrl(author.photo, 128, 128)}
+          width="64"
+          height="64"
+          alt={altText(author.photo, `${author.name}の近影`)}
+          loading="lazy"
+          decoding="async"
+        />
+      )
+    }
+  </div>
+  <div>
+    <h5>{author.name}{author.credentials ? `（${author.credentials}）` : ''}</h5>
+    <p>
+      {author.bio || site.testPolicySummary}
+      {conditionParts.length > 0 && ` この靴のテスト条件: ${conditionParts.join(' / ')}。`}
+    </p>
+  </div>
+</div>

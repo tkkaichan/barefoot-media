@@ -1,0 +1,325 @@
+/*
+ * 固定ページ（プライバシー・運営者情報・お問い合わせ・テストポリシー）。
+ * page-privacy / page-company / page-contact.html からの移植。
+ * ※このページ群にパンくずは付けない（運営者決定）。
+ */
+
+body[data-template='doc'] {
+  line-height: 1.95;
+}
+
+.doc {
+  max-width: 760px;
+  padding: 48px 0 88px;
+}
+.doc--narrow {
+  max-width: 680px;
+}
+.doc .updated {
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+
+/* 番号付き明朝見出し＋上罫線 */
+.doc h2 {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+  border-top: 1px solid var(--ink);
+  padding-top: 16px;
+  margin-top: 48px;
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+}
+.doc h2 .no {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 400;
+  flex-shrink: 0;
+}
+.doc h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 32px 0 12px;
+}
+.doc p {
+  margin-top: 14px;
+  font-size: 14.5px;
+  color: var(--ink-soft);
+}
+.doc ul,
+.doc ol {
+  margin: 14px 0 0 1.4em;
+  font-size: 14.5px;
+  color: var(--ink-soft);
+}
+.doc li {
+  margin-bottom: 6px;
+}
+.doc a {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.doc table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.doc th,
+.doc td {
+  text-align: left;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  vertical-align: top;
+}
+.doc th {
+  width: 32%;
+  font-weight: 500;
+  color: var(--ink-soft);
+  background: var(--bg-soft);
+}
+.doc tr:last-child th,
+.doc tr:last-child td {
+  border-bottom: none;
+}
+
+/* 運営者情報のプロフィールカード */
+.profile {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 32px;
+}
+.profile-photo {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--bg-soft);
+}
+.profile-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.profile h2 {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 600;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: block;
+}
+.profile .en {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+.profile p {
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin-top: 12px;
+}
+
+.policy-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--accent);
+  font-weight: 500;
+  font-size: 14px;
+  margin-top: 16px;
+}
+.policy-link svg {
+  transition: transform 0.2s ease-out;
+}
+.policy-link:hover svg {
+  transform: translateX(4px);
+}
+
+/* テストポリシーの全面写真ヒーロー（このページと連載トップのみ許可） */
+.full-hero {
+  position: relative;
+  height: min(56vh, 460px);
+  overflow: hidden;
+  background: var(--bg-soft);
+}
+.full-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ---- フォーム ---- */
+.form {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 36px;
+}
+.field {
+  margin-bottom: 26px;
+}
+.form label {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.form label .opt {
+  font-weight: 400;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  margin-left: 8px;
+}
+.form input[type='text'],
+.form input[type='email'],
+.form select,
+.form textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  padding: 13px 14px;
+  font-size: 14.5px;
+  font-family: var(--sans);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.form input:focus,
+.form select:focus,
+.form textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.form textarea {
+  min-height: 170px;
+  resize: vertical;
+}
+.form .hint {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 6px;
+}
+/* インラインバリデーション。色だけに頼らずテキストも出す */
+.form [aria-invalid='true'] {
+  border-color: #a3372a;
+}
+.form .error {
+  font-size: 12px;
+  color: #a3372a;
+  margin-top: 6px;
+  font-weight: 500;
+}
+.form .error:empty {
+  display: none;
+}
+.submit {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.form button[type='submit'] {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  font-family: var(--sans);
+  padding: 15px 30px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+.form button[type='submit']:hover:not(:disabled) {
+  background: var(--accent-deep);
+}
+.form button[type='submit']:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.form button svg {
+  transition: transform 0.2s ease-out;
+}
+.form button:hover:not(:disabled) svg {
+  transform: translateX(4px);
+}
+/* 3状態（待機 / 送信中 / 完了）はテキストの出し分けで表す */
+.form button [data-state] {
+  display: none;
+}
+.form button[data-status='idle'] [data-state='idle'],
+.form button[data-status='sending'] [data-state='sending'],
+.form button[data-status='done'] [data-state='done'] {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid color-mix(in srgb, #fff 40%, transparent);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.micro {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+}
+.note {
+  margin-top: 28px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+.note b {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* honeypot（スパム対策）。視覚・SRの両方から隠す */
+.hp {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 960px) {
+  .profile {
+    flex-direction: column;
+  }
+  .form {
+    padding: 24px;
+  }
+}

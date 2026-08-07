@@ -1,0 +1,200 @@
+---
+import type { GetStaticPaths } from 'astro'
+import AuthorBox from '../../components/AuthorBox.astro'
+import Breadcrumbs from '../../components/Breadcrumbs.astro'
+import Faq from '../../components/Faq.astro'
+import NewsletterBand from '../../components/NewsletterBand.astro'
+import NextPosts from '../../components/NextPosts.astro'
+import ProgressBar from '../../components/ProgressBar.astro'
+import Toc from '../../components/Toc.astro'
+import PortableText from '../../components/portable/PortableText.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { altText, imageUrl, srcSet } from '../../lib/image'
+import { formatDate, pad2 } from '../../lib/format'
+import {
+  articleLd,
+  breadcrumbLd,
+  faqLd,
+  itemListLd,
+  productLd,
+  reviewLd,
+} from '../../lib/jsonld'
+import { excerpt, extractHeadings, toPlainText } from '../../lib/portableText'
+import { getNav, getPost, getPostSlugs, getSiteSettings } from '../../lib/queries'
+import type { Post } from '../../lib/types'
+
+import '../../styles/article.css'
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const slugs = await getPostSlugs()
+  return slugs.map((slug) => ({ params: { slug } }))
+}
+
+const { slug } = Astro.params
+const [site, nav, post] = await Promise.all([getSiteSettings(), getNav(), getPost(String(slug))])
+
+if (!post) {
+  throw new Error(`記事が見つかりません: ${slug}`)
+}
+const article = post as Post
+
+const headings = extractHeadings(article.body)
+// FAQ は本文の最後の節として扱う。目次にも連番にも含める（モック準拠）
+const faqNumber = pad2(headings.length + 1)
+const tocHeadings = article.faq?.length
+  ? [...headings, { id: 'faq', text: 'よくある質問', number: faqNumber }]
+  : headings
+
+const topic = article.topics?.[0]
+const labelParts = [article.category?.labelEn, topic?.labelShort || topic?.title].filter(Boolean)
+
+// テスト条件のサマリ（メタ行に出す）
+const testedShoe = article.shoes?.find((s) => s.fieldTest?.testDays || s.fieldTest?.testDistanceKm)
+const testSummary = testedShoe?.fieldTest
+  ? [
+      typeof testedShoe.fieldTest.testDays === 'number' ? `${testedShoe.fieldTest.testDays}日間` : null,
+      typeof testedShoe.fieldTest.testDistanceKm === 'number'
+        ? `${testedShoe.fieldTest.testDistanceKm}km`
+        : null,
+    ]
+      .filter(Boolean)
+      .join(' / ')
+  : ''
+
+const trail = [
+  { name: 'ホーム', path: '/' },
+  ...(article.category
+    ? [{ name: article.category.title, path: `/category/${article.category.slug}/` }]
+    : []),
+  { name: article.title },
+]
+
+const description =
+  article.seo?.metaDescription || article.leadDefinition || excerpt(toPlainText(article.body))
+
+const jsonLd = [
+  articleLd(site, article),
+  breadcrumbLd(site, trail),
+  faqLd(article.faq ?? []),
+  ...(article.shoes ?? []).map((s) => productLd(site, s)),
+  ...(article.articleType === 'review'
+    ? (article.shoes ?? []).map((s) => reviewLd(site, s, article)).filter(Boolean)
+    : []),
+  ...(article.articleType === 'comparison' && article.shoes?.length
+    ? [
+        itemListLd(
+          site,
+          article.shoes.map((s) => ({
+            name: [s.brand?.name, s.name].filter(Boolean).join(' '),
+            path: `/shoes/${s.slug}/`,
+          })),
+        ),
+      ]
+    : []),
+].filter(Boolean) as Array<Record<string, unknown>>
+---
+
+<BaseLayout
+  site={site}
+  nav={nav}
+  title={article.title}
+  description={description}
+  ogImage={article.seo?.ogImage ?? article.mainImage}
+  ogType="article"
+  canonical={article.seo?.canonicalUrl}
+  noindex={article.seo?.noindex}
+  template="article"
+  jsonLd={jsonLd}
+>
+  <ProgressBar slot="progress" />
+
+  <div class="container">
+    <Breadcrumbs trail={trail} />
+
+    <div class="article-grid">
+      <article class="post">
+        <div class="a-head">
+          {labelParts.length > 0 && <span class="cat">{labelParts.join(' / ')}</span>}
+          <h1>{article.title}</h1>
+          <div class="a-meta">
+            <span>公開 <b><time datetime={article.publishedAt}>{formatDate(article.publishedAt)}</time></b></span>
+            {
+              article.updatedAt && (
+                <span>
+                  更新 <b><time datetime={article.updatedAt}>{formatDate(article.updatedAt)}</time></b>
+                </span>
+              )
+            }
+            {testSummary && <span>テスト <b>{testSummary}</b></span>}
+            <span>執筆 <b>{article.author.name}（実着用）</b></span>
+            {article.supervisor && <span>監修 <b>{article.supervisor.name}{article.supervisor.credentials ? `・${article.supervisor.credentials}` : ''}</b></span>}
+          </div>
+        </div>
+
+        {article.leadDefinition && <p class="lead">{article.leadDefinition}</p>}
+
+        {
+          article.mainImage && (
+            <>
+              <div class="a-photo">
+                <img
+                  src={imageUrl(article.mainImage, 900, 506)}
+                  srcset={srcSet(article.mainImage, [720, 900, 1440], 16 / 9)}
+                  sizes="(max-width: 960px) 100vw, 720px"
+                  width="900"
+                  height="506"
+                  alt={altText(article.mainImage, `記事のメイン画像: ${article.title}`)}
+                  loading="eager"
+                  fetchpriority="high"
+                  decoding="async"
+                />
+              </div>
+              {(article.mainImage.caption || article.mainImage.shotAt) && (
+                <p class="a-caption">
+                  {[
+                    article.mainImage.caption,
+                    article.mainImage.shotAt ? `撮影: ${formatDate(article.mainImage.shotAt)}` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' ／ ')}
+                </p>
+              )}
+            </>
+          )
+        }
+
+        <PortableText value={article.body} site={site} leadMagnet={article.leadMagnet ?? 'LM1'} />
+
+        {
+          article.faq && article.faq.length > 0 && (
+            <>
+              <h2 id="faq">
+                <span class="no">{faqNumber}</span>
+                <span>よくある質問</span>
+              </h2>
+              <Faq items={article.faq} />
+            </>
+          )
+        }
+
+        {
+          (article.articleType === 'health' || article.supervisor) && (
+            <p class="disclaim">{site.medicalDisclaimer}</p>
+          )
+        }
+
+        <AuthorBox author={article.author} site={site} shoes={article.shoes} />
+        <NextPosts posts={article.relatedPosts ?? []} />
+      </article>
+
+      <Toc headings={tocHeadings} site={site} />
+    </div>
+  </div>
+
+  <NewsletterBand
+    slot="after-main"
+    site={site}
+    leadMagnet={article.leadMagnet ?? 'LM1'}
+    source="article-footer"
+  />
+</BaseLayout>

@@ -1,0 +1,187 @@
+---
+import Arrow from '../components/Arrow.astro'
+import PortableText from '../components/portable/PortableText.astro'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { webPageLd } from '../lib/jsonld'
+import { getNav, getPage, getSiteSettings } from '../lib/queries'
+
+import '../styles/doc.css'
+
+/**
+ * お問い合わせ。page ドキュメント（slug: contact）の本文＋フォーム。
+ * ※固定ページなのでパンくずは付けない。
+ * 送信ボタンは disabled → 送信中 → 完了 の3状態、バリデーションはインラインで即時（design-brief 5節）。
+ */
+const [site, nav, page] = await Promise.all([
+  getSiteSettings(),
+  getNav(),
+  getPage('contact'),
+])
+
+const endpoint = import.meta.env.PUBLIC_CONTACT_ENDPOINT ?? ''
+const title = page?.title ?? 'お問い合わせ'
+const lead =
+  page?.lead ??
+  '記事の内容、レビューのご依頼、取材・お仕事のご相談はこちらから。通常2〜3営業日以内に返信します。'
+---
+
+<BaseLayout
+  site={site}
+  nav={nav}
+  title={title}
+  description={page?.seo?.metaDescription || lead}
+  template="doc"
+  jsonLd={page ? [webPageLd(site, page)] : []}
+>
+  <div class="container">
+    <div class="page-head">
+      <p class="page-en">{page?.labelEn ?? 'CONTACT'}</p>
+      <h1>{title}</h1>
+      <p class="page-lead">{lead}</p>
+    </div>
+
+    <div class="doc doc--narrow">
+      <form class="form" action={endpoint} method="post" novalidate data-contact-form>
+        <div class="field">
+          <label for="c-name">お名前</label>
+          <input id="c-name" name="name" type="text" placeholder="例: 山田 太郎" required autocomplete="name" />
+          <p class="error" data-error-for="c-name"></p>
+        </div>
+
+        <div class="field">
+          <label for="c-email">メールアドレス</label>
+          <input
+            id="c-email"
+            name="email"
+            type="email"
+            placeholder="例: yamada@example.com"
+            required
+            autocomplete="email"
+          />
+          <p class="hint">返信先として使用します。それ以外の用途には使いません。</p>
+          <p class="error" data-error-for="c-email"></p>
+        </div>
+
+        <div class="field">
+          <label for="c-type">お問い合わせの種類</label>
+          <select id="c-type" name="type">
+            <option>記事内容について</option>
+            <option>レビュー・製品提供のご相談（メーカー様）</option>
+            <option>取材・お仕事のご依頼</option>
+            <option>その他</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="c-message">お問い合わせ内容</label>
+          <textarea
+            id="c-message"
+            name="message"
+            placeholder="できるだけ具体的にお書きください"
+            required></textarea>
+          <p class="error" data-error-for="c-message"></p>
+        </div>
+
+        <!-- honeypot: 人間は入力しない -->
+        <div class="hp" aria-hidden="true">
+          <label>この欄は入力しないでください<input type="text" name="company" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+        <div class="submit">
+          <button type="submit" data-status="idle" disabled>
+            <span data-state="idle">送信する<Arrow width={26} /></span>
+            <span data-state="sending"><span class="spinner"></span>送信中</span>
+            <span data-state="done">送信しました</span>
+          </button>
+          <p class="micro">
+            送信前に<a href="/privacy/">プライバシーポリシー</a>をご確認ください
+          </p>
+        </div>
+        <p class="error" role="status" aria-live="polite" data-form-error></p>
+      </form>
+
+      {page?.body && <PortableText value={page.body} site={site} />}
+
+      <p class="note">
+        <b>メーカー・ブランドご担当者様へ</b><br />
+        製品のご提供は歓迎しますが、レビューの評価基準は購入品と同一です。「提供品である」ことは記事内に必ず明記し、内容の事前確認・修正のお約束はできかねます。この方針にご同意のうえでご連絡ください。
+      </p>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]')
+  if (form) {
+    const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!
+    const formError = form.querySelector<HTMLElement>('[data-form-error]')
+    const fields = Array.from(
+      form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('[required]'),
+    )
+
+    const messageFor = (field: HTMLInputElement | HTMLTextAreaElement): string => {
+      if (!field.value.trim()) return '入力してください'
+      if (field.type === 'email' && !field.checkValidity()) return 'メールアドレスの形式で入力してください'
+      return ''
+    }
+
+    const showError = (field: HTMLInputElement | HTMLTextAreaElement, message: string) => {
+      const target = form.querySelector<HTMLElement>(`[data-error-for="${field.id}"]`)
+      if (target) target.textContent = message
+      field.setAttribute('aria-invalid', message ? 'true' : 'false')
+    }
+
+    const validate = (): boolean => fields.every((f) => messageFor(f) === '')
+
+    const refresh = () => {
+      button.disabled = !validate()
+    }
+
+    fields.forEach((field) => {
+      // 入力中はエラーを出さず、離れたときに出す（打っている途中で赤くしない）
+      field.addEventListener('blur', () => showError(field, messageFor(field)))
+      field.addEventListener('input', () => {
+        if (field.getAttribute('aria-invalid') === 'true') showError(field, messageFor(field))
+        refresh()
+      })
+    })
+    refresh()
+
+    form.addEventListener('submit', async (event) => {
+      const honeypot = form.querySelector<HTMLInputElement>('input[name="company"]')
+      if (honeypot?.value) {
+        event.preventDefault()
+        return
+      }
+      fields.forEach((f) => showError(f, messageFor(f)))
+      if (!validate()) {
+        event.preventDefault()
+        return
+      }
+      if (!form.action) return // 送信先未設定ならブラウザ既定に任せる
+
+      event.preventDefault()
+      button.dataset.status = 'sending'
+      button.disabled = true
+      if (formError) formError.textContent = ''
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { Accept: 'application/json' },
+        })
+        if (!response.ok) throw new Error(String(response.status))
+        button.dataset.status = 'done'
+        form.reset()
+      } catch {
+        button.dataset.status = 'idle'
+        button.disabled = false
+        if (formError) {
+          formError.textContent =
+            '送信できませんでした。時間をおいて再度お試しいただくか、しばらく経っても解決しない場合はSNSからご連絡ください。'
+        }
+      }
+    })
+  }
+</script>

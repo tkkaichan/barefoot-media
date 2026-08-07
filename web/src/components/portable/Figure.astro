@@ -1,0 +1,28 @@
+---
+import { altText, imageUrl, srcSet, type ImageWithMeta } from '../../lib/image'
+import { formatDate } from '../../lib/format'
+
+/**
+ * 本文中の写真・図版。
+ * キャプションに載せてよいのは出典・実測値・操作ラベル・撮影日のみ（雰囲気キャプション禁止）。
+ */
+interface Props {
+  image: ImageWithMeta
+}
+const { image } = Astro.props
+const caption = [image.caption, image.shotAt ? `撮影: ${formatDate(image.shotAt)}` : null]
+  .filter(Boolean)
+  .join(' ／ ')
+---
+
+<figure>
+  <img
+    src={imageUrl(image, 760)}
+    srcset={srcSet(image, [560, 760, 1120])}
+    sizes="(max-width: 960px) 100vw, 720px"
+    alt={altText(image, '本文中の図版')}
+    loading="lazy"
+    decoding="async"
+  />
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>

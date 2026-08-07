@@ -1,0 +1,140 @@
+---
+import Block from './Block.astro'
+import BuyBox from './BuyBox.astro'
+import ComparisonTable from './ComparisonTable.astro'
+import Figure from './Figure.astro'
+import SpecTable from './SpecTable.astro'
+import Tables from './Tables.astro'
+import TestConditions from './TestConditions.astro'
+import NewsletterBand from '../NewsletterBand.astro'
+import { buildHeadingNumberMap } from '../../lib/portableText'
+import type { PortableTextBlock, PortableTextNode, SiteSettings } from '../../lib/types'
+
+/**
+ * Portable Text 本文のレンダラ。
+ * リスト項目は連続するものをまとめて <ul>/<ol> にする。
+ * カスタムブロックはここで振り分ける。未知の型は握りつぶさずビルドログに出す。
+ */
+interface Props {
+  value: PortableTextNode[]
+  site: SiteSettings
+  /** 記事の leadMagnet。本文中のCTAが 'inherit' のときに使う */
+  leadMagnet?: string
+}
+const { value = [], site, leadMagnet = 'LM1' } = Astro.props
+const headingNumbers = buildHeadingNumberMap(value)
+
+/** 連続するリスト項目を1つのリストにまとめる */
+type Group =
+  | { kind: 'node'; node: PortableTextNode }
+  | { kind: 'list'; listType: 'bullet' | 'number'; items: PortableTextBlock[] }
+
+const groups: Group[] = []
+for (const node of value) {
+  const block = node as PortableTextBlock
+  if (node._type === 'block' && block.listItem) {
+    const last = groups[groups.length - 1]
+    if (last?.kind === 'list' && last.listType === block.listItem) {
+      last.items.push(block)
+    } else {
+      groups.push({ kind: 'list', listType: block.listItem, items: [block] })
+    }
+  } else {
+    groups.push({ kind: 'node', node })
+  }
+}
+
+const KNOWN = new Set([
+  'block',
+  'figure',
+  'image',
+  'specTable',
+  'comparisonTable',
+  'testConditionBlock',
+  'claimEvidenceTable',
+  'evidenceTable',
+  'fieldNoteQuote',
+  'infoTable',
+  'buyBlock',
+  'ctaBlock',
+])
+for (const node of value) {
+  if (!KNOWN.has(node._type)) {
+    console.warn(`[portableText] 未対応のブロック型: ${node._type}（描画されません）`)
+  }
+}
+---
+
+{
+  groups.map((group) => {
+    if (group.kind === 'list') {
+      const Tag = group.listType === 'number' ? 'ol' : 'ul'
+      return (
+        <Tag>
+          {group.items.map((item) => (
+            <Block block={item} asListItem />
+          ))}
+        </Tag>
+      )
+    }
+
+    const node = group.node as any
+    switch (node._type) {
+      case 'block':
+        return <Block block={node} headingNumbers={headingNumbers} />
+
+      case 'figure':
+      case 'image':
+        return <Figure image={node} />
+
+      case 'specTable':
+        return node.shoe ? <SpecTable shoe={node.shoe} showOfficial={node.showOfficial !== false} /> : null
+
+      case 'comparisonTable':
+        return node.shoes?.length ? (
+          <ComparisonTable
+            shoes={node.shoes}
+            columns={node.columns ?? []}
+            caption={node.caption}
+            layout={node.layout ?? 'spec'}
+          />
+        ) : null
+
+      case 'testConditionBlock':
+        return <TestConditions shoe={node.shoe} items={node.items ?? []} />
+
+      case 'claimEvidenceTable':
+        return <Tables kind="claim" caption={node.caption} rows={node.rows ?? []} />
+
+      case 'evidenceTable':
+        return <Tables kind="evidence" caption={node.caption} rows={node.rows ?? []} />
+
+      case 'infoTable':
+        return <Tables kind="info" caption={node.caption} rows={node.rows ?? []} />
+
+      case 'fieldNoteQuote':
+        return (
+          <div class="quote">
+            {node.text}
+            <small>— {node.source}</small>
+          </div>
+        )
+
+      case 'buyBlock':
+        return node.shoe ? <BuyBox shoe={node.shoe} site={site} /> : null
+
+      case 'ctaBlock':
+        return (
+          <NewsletterBand
+            site={site}
+            headline={node.headline}
+            leadMagnet={node.leadMagnet === 'inherit' ? leadMagnet : node.leadMagnet}
+            source="in-article"
+          />
+        )
+
+      default:
+        return null
+    }
+  })
+}

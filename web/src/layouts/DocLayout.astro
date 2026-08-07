@@ -1,0 +1,97 @@
+---
+import Arrow from '../components/Arrow.astro'
+import PortableText from '../components/portable/PortableText.astro'
+import BaseLayout from './BaseLayout.astro'
+import { altText, imageUrl, srcSet } from '../lib/image'
+import { webPageLd } from '../lib/jsonld'
+import type { NavData, PageDoc, SiteSettings } from '../lib/types'
+
+import '../styles/doc.css'
+
+/**
+ * 固定ページの共通枠（page-privacy / page-company の型）。
+ * ※固定ページにパンくずは付けない（運営者決定・IMPLEMENTATION-HANDOFF）。
+ *   BreadcrumbList の JSON-LD も出さない。
+ */
+interface Props {
+  site: SiteSettings
+  nav: NavData
+  page: PageDoc
+  narrow?: boolean
+}
+const { site, nav, page, narrow = false } = Astro.props
+const author = site.primaryAuthor
+---
+
+<BaseLayout
+  site={site}
+  nav={nav}
+  title={page.title}
+  description={page.seo?.metaDescription || page.lead || site.description}
+  ogImage={page.seo?.ogImage}
+  canonical={page.seo?.canonicalUrl}
+  noindex={page.seo?.noindex}
+  template="doc"
+  jsonLd={[webPageLd(site, page)]}
+>
+  {
+    page.template === 'testPolicy' && page.heroImage && (
+      <div class="full-hero">
+        <img
+          src={imageUrl(page.heroImage, 1600, 800)}
+          srcset={srcSet(page.heroImage, [960, 1600, 2000], 2)}
+          sizes="100vw"
+          alt={altText(page.heroImage, page.title)}
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+    )
+  }
+
+  <div class="container">
+    <div class="page-head">
+      <p class="page-en">{page.labelEn}</p>
+      <h1>{page.title}</h1>
+      {page.lead && <p class="page-lead">{page.lead}</p>}
+      {page.effectiveNote && <p class="updated">{page.effectiveNote}</p>}
+    </div>
+
+    <div class={narrow ? 'doc doc--narrow' : 'doc'}>
+      {
+        page.template === 'about' && author && (
+          <div class="profile">
+            <div class="profile-photo">
+              {author.photo && (
+                <img
+                  src={imageUrl(author.photo, 220, 220)}
+                  width="110"
+                  height="110"
+                  alt={altText(author.photo, `${author.name}の近影`)}
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+            </div>
+            <div>
+              <p class="en">AUTHOR / EDITOR</p>
+              <h2>{author.name}</h2>
+              <p>{author.bio}</p>
+              <a href="/test-policy/" class="policy-link">
+                テストの方針を読む
+                <Arrow width={22} />
+              </a>
+            </div>
+          </div>
+        )
+      }
+
+      <PortableText value={page.body} site={site} leadMagnet={page.leadMagnet ?? 'LM1'} />
+
+      <slot />
+    </div>
+  </div>
+
+  <slot name="after-main" slot="after-main" />
+</BaseLayout>

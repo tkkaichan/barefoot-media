@@ -1,0 +1,30 @@
+---
+import type { GetStaticPaths } from 'astro'
+import NewsletterForm from '../../components/NewsletterForm.astro'
+import DocLayout from '../../layouts/DocLayout.astro'
+import { getNav, getPage, getPageRefs, getSiteSettings } from '../../lib/queries'
+
+/**
+ * リードマグネットLP（LM1 / LM2）。
+ * 指名検索の受け皿にするため noindex にはしない（REQUIREMENTS §3 #9）。
+ */
+export const getStaticPaths: GetStaticPaths = async () => {
+  const refs = await getPageRefs()
+  return refs.filter((r) => r.template === 'lp').map((r) => ({ params: { slug: r.slug } }))
+}
+
+const { slug } = Astro.params
+const [site, nav, page] = await Promise.all([getSiteSettings(), getNav(), getPage(String(slug))])
+
+if (!page) throw new Error(`LPが見つかりません: ${slug}`)
+const leadMagnet = page.leadMagnet ?? 'LM1'
+---
+
+<DocLayout site={site} nav={nav} page={page} narrow>
+  <div class="side-news" style="margin-top:40px">
+    <h5>{site.newsletterSidebarHeadline ?? 'PDFを無料で受け取る'}</h5>
+    {site.newsletterSidebarBody && <p>{site.newsletterSidebarBody}</p>}
+    <NewsletterForm site={site} variant="sidebar" leadMagnet={leadMagnet} source={`lp-${slug}`} />
+    <p class="side-micro">{site.newsletterMicrocopy ?? '週1通 / 1クリックで解除できます'}</p>
+  </div>
+</DocLayout>

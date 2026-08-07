@@ -1,0 +1,98 @@
+---
+import type { GetStaticPaths, Page } from 'astro'
+import ArticleCard from '../../../components/ArticleCard.astro'
+import Breadcrumbs from '../../../components/Breadcrumbs.astro'
+import NewsletterBand from '../../../components/NewsletterBand.astro'
+import Pagination from '../../../components/Pagination.astro'
+import Sidebar from '../../../components/Sidebar.astro'
+import BaseLayout from '../../../layouts/BaseLayout.astro'
+import { PAGE_SIZE } from '../../../lib/config'
+import { breadcrumbLd, itemListLd } from '../../../lib/jsonld'
+import {
+  getAllTopics,
+  getHomepage,
+  getNav,
+  getPostsByTopic,
+  getSiteSettings,
+} from '../../../lib/queries'
+import type { PostCard, TopicRef } from '../../../lib/types'
+
+/** トピック（チップ）別の記事一覧。 */
+export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+  const topics = await getAllTopics()
+  const paths = await Promise.all(
+    topics.map(async (topic) => {
+      const posts = await getPostsByTopic(topic.slug)
+      return paginate(posts, {
+        params: { slug: topic.slug },
+        props: { topic },
+        pageSize: PAGE_SIZE,
+      })
+    }),
+  )
+  return paths.flat()
+}
+
+interface Props {
+  page: Page<PostCard>
+  topic: TopicRef & { description?: string }
+}
+const { page, topic } = Astro.props
+
+const [site, nav, homepage] = await Promise.all([getSiteSettings(), getNav(), getHomepage()])
+
+const trail = [
+  { name: 'ホーム', path: '/' },
+  { name: topic.title, path: `/topic/${topic.slug}/` },
+]
+
+const jsonLd = [
+  breadcrumbLd(site, trail),
+  itemListLd(
+    site,
+    page.data.map((p) => ({ name: p.title, path: `/articles/${p.slug}/` })),
+  ),
+]
+---
+
+<BaseLayout
+  site={site}
+  nav={nav}
+  title={`${topic.title}の記事`}
+  description={topic.description || `「${topic.title}」に関する記事の一覧。`}
+  noindex={page.currentPage > 1}
+  jsonLd={jsonLd}
+>
+  <div class="container">
+    <Breadcrumbs trail={trail} />
+    <div class="page-head">
+      <p class="page-en">TOPIC</p>
+      <h1>{topic.title}</h1>
+      {topic.description && <p class="page-lead">{topic.description}</p>}
+    </div>
+
+    <div class="body-grid">
+      <div>
+        {
+          page.data.length > 0 ? (
+            <div class="cards">
+              {page.data.map((post) => (
+                <ArticleCard post={post} />
+              ))}
+            </div>
+          ) : (
+            <p class="cards-empty">このトピックの記事はまだありません。</p>
+          )
+        }
+        <Pagination
+          current={page.currentPage}
+          total={page.lastPage}
+          basePath={`/topic/${topic.slug}/`}
+        />
+      </div>
+      <Sidebar site={site} nav={nav} homepage={homepage} />
+    </div>
+  </div>
+
+  <NewsletterBand slot="after-main" site={site} source="topic-band" />
+</BaseLayout>

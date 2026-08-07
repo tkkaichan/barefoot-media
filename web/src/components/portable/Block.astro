@@ -1,0 +1,55 @@
+---
+import Marks from './Marks.astro'
+import { headingId } from '../../lib/portableText'
+import type { PortableTextBlock } from '../../lib/types'
+
+/** 1つの block（段落・見出し・引用）を描画する。リスト項目は Body 側でまとめる。 */
+interface Props {
+  block: PortableTextBlock
+  /** h2 の連番（01, 02…）。キーは headingId(_key) */
+  headingNumbers?: Map<string, string>
+  asListItem?: boolean
+}
+const { block, headingNumbers, asListItem = false } = Astro.props
+const markDefs = block.markDefs ?? []
+const children = block.children ?? []
+const id = headingId(block._key)
+const no = headingNumbers?.get(id)
+---
+
+{
+  asListItem ? (
+    <li>
+      {children.map((c) => (
+        <Marks marks={c.marks ?? []} text={c.text ?? ''} markDefs={markDefs} />
+      ))}
+    </li>
+  ) : block.style === 'h2' ? (
+    <h2 id={id}>
+      {no && <span class="no">{no}</span>}
+      <span>
+        {children.map((c) => (
+          <Marks marks={c.marks ?? []} text={c.text ?? ''} markDefs={markDefs} />
+        ))}
+      </span>
+    </h2>
+  ) : block.style === 'h3' ? (
+    <h3 id={id}>
+      {children.map((c) => (
+        <Marks marks={c.marks ?? []} text={c.text ?? ''} markDefs={markDefs} />
+      ))}
+    </h3>
+  ) : block.style === 'blockquote' ? (
+    <blockquote>
+      {children.map((c) => (
+        <Marks marks={c.marks ?? []} text={c.text ?? ''} markDefs={markDefs} />
+      ))}
+    </blockquote>
+  ) : (
+    <p class={block.style === 'lead' ? 'lead' : undefined}>
+      {children.map((c) => (
+        <Marks marks={c.marks ?? []} text={c.text ?? ''} markDefs={markDefs} />
+      ))}
+    </p>
+  )
+}

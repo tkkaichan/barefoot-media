@@ -1,0 +1,103 @@
+---
+import { EVIDENCE_LEVEL_LABEL } from '../../lib/labels'
+
+/**
+ * 固定列の表3種をまとめたもの。
+ * kind='claim'    主張×根拠レベル表（D3）
+ * kind='evidence' エビデンステーブル（M5）
+ * kind='info'     項目テーブル（固定ページの運営者概要など）
+ */
+interface Props {
+  kind: 'claim' | 'evidence' | 'info'
+  caption?: string
+  rows: Array<Record<string, any>>
+}
+const { kind, caption, rows = [] } = Astro.props
+---
+
+<div class="table-scroll">
+  <table class="spec">
+    {caption && <caption>{caption}</caption>}
+
+    {
+      kind === 'claim' && (
+        <>
+          <thead>
+            <tr>
+              <th scope="col">主張</th>
+              <th scope="col">根拠レベル</th>
+              <th scope="col">補足・出典</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr>
+                <td>{r.claim}</td>
+                <td>{EVIDENCE_LEVEL_LABEL[r.evidenceLevel] ?? r.evidenceLevel ?? '—'}</td>
+                <td>
+                  {r.note}
+                  {r.sourceUrl && (
+                    <>
+                      {r.note ? ' ' : ''}
+                      <a href={r.sourceUrl} target="_blank" rel="noopener">
+                        出典
+                      </a>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </>
+      )
+    }
+
+    {
+      kind === 'evidence' && (
+        <>
+          <thead>
+            <tr>
+              <th scope="col">わかっていること</th>
+              <th scope="col">研究デザイン</th>
+              <th scope="col">対象数</th>
+              <th scope="col">発表年</th>
+              <th scope="col">出典</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr>
+                <td>{r.finding}</td>
+                <td>{r.studyType ?? '—'}</td>
+                <td>{r.sampleSize ?? '—'}</td>
+                <td>{r.year ?? '—'}</td>
+                <td>
+                  {r.sourceUrl ? (
+                    <a href={r.sourceUrl} target="_blank" rel="noopener">
+                      {r.source}
+                    </a>
+                  ) : (
+                    r.source
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </>
+      )
+    }
+
+    {
+      kind === 'info' && (
+        <tbody>
+          {rows.map((r) => (
+            <tr>
+              <th scope="row">{r.label}</th>
+              <td>{r.value}</td>
+            </tr>
+          ))}
+        </tbody>
+      )
+    }
+  </table>
+</div>

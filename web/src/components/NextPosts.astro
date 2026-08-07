@@ -1,0 +1,27 @@
+---
+import type { PostCard } from '../lib/types'
+
+/** 記事末の「この記事の次に読む」。番号は a. b. c.（モック準拠）。 */
+interface Props {
+  posts: PostCard[]
+}
+const { posts } = Astro.props
+const letters = ['a.', 'b.', 'c.', 'd.']
+---
+
+{
+  posts.length > 0 && (
+    <div class="next">
+      <div class="next-head">
+        <span class="en">NEXT</span>
+        <h4>この記事の次に読む</h4>
+      </div>
+      {posts.map((p, i) => (
+        <a href={`/articles/${p.slug}/`}>
+          <span class="no">{letters[i] ?? `${i + 1}.`}</span>
+          {p.title}
+        </a>
+      ))}
+    </div>
+  )
+}

@@ -1,0 +1,28 @@
+---
+import Chevron from './Chevron.astro'
+
+/**
+ * パンくず。記事・カテゴリ・シューズDBのみに付ける。
+ * 固定ページ（privacy / about / contact 等）には付けない（運営者決定）。
+ * BreadcrumbList の JSON-LD は BaseLayout 側で同じ trail から生成する。
+ */
+interface Props {
+  trail: Array<{ name: string; path?: string }>
+}
+const { trail } = Astro.props
+---
+
+<nav class="crumbs" aria-label="パンくず">
+  {
+    trail.map((item, i) => (
+      <>
+        {i > 0 && <Chevron width={6} height={10} strokeWidth={1.4} />}
+        {item.path && i < trail.length - 1 ? (
+          <a href={item.path}>{item.name}</a>
+        ) : (
+          <span aria-current="page">{item.name}</span>
+        )}
+      </>
+    ))
+  }
+</nav>

@@ -1,0 +1,43 @@
+---
+import type { ShoeSummary } from '../../lib/types'
+
+/**
+ * テスト条件ストリップ（R2）。記事冒頭の4項目。
+ * モデル指定があれば畑テスト値をDBから出し、無ければ手入力項目を出す。
+ * どちらの場合もテストポリシーへのリンクを必ず付ける。
+ */
+interface Props {
+  shoe?: ShoeSummary
+  items?: Array<{ label?: string; value?: string }>
+}
+const { shoe, items = [] } = Astro.props
+const f = shoe?.fieldTest ?? {}
+
+const fromDb: Array<{ label: string; value: string }> = []
+if (typeof f.wetGripScore === 'number') fromDb.push({ label: 'WET GRIP', value: `${f.wetGripScore} / 5` })
+if (typeof f.mudCloggingScore === 'number') fromDb.push({ label: 'MUD CLOGGING', value: `${f.mudCloggingScore} / 5` })
+if (typeof f.waterIntrusionMin === 'number') fromDb.push({ label: 'WATER INTRUSION', value: `${f.waterIntrusionMin}分` })
+if (f.soleWearNote) fromDb.push({ label: 'SOLE WEAR', value: f.soleWearNote })
+
+const manual = items
+  .filter((i) => i.label && i.value)
+  .map((i) => ({ label: i.label as string, value: i.value as string }))
+
+const rows = manual.length > 0 ? manual : fromDb
+---
+
+{
+  rows.length > 0 && (
+    <>
+      <dl class="test-cond">
+        {rows.map((r) => (
+          <div class="tc">
+            <dt>{r.label}</dt>
+            <dd>{r.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <a class="test-cond-link" href="/test-policy/">計測方法とテスト基準を見る</a>
+    </>
+  )
+}

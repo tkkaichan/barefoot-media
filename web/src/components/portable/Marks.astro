@@ -1,0 +1,72 @@
+---
+/**
+ * Portable Text のマーク（装飾＋アノテーション）を内側から順に包む。
+ * 自分自身を再帰呼び出しして入れ子を作る。
+ */
+interface Props {
+  marks: string[]
+  text: string
+  markDefs: Array<Record<string, any>>
+}
+const { marks, text, markDefs } = Astro.props
+const Self = Astro.self
+
+const [mark, ...rest] = marks
+const def = mark ? markDefs.find((d) => d._key === mark) : undefined
+
+// アノテーション（リンク）の解決
+let href: string | undefined
+let rel: string | undefined
+let target: string | undefined
+let isAffiliate = false
+
+if (def) {
+  if (def._type === 'internalLink' && def.slug) {
+    href = def.docType === 'shoe' ? `/shoes/${def.slug}/` : `/articles/${def.slug}/`
+  } else if (def._type === 'link' && def.href) {
+    href = def.href
+    isAffiliate = Boolean(def.isAffiliate)
+    const isExternal = /^https?:\/\//.test(def.href)
+    if (isExternal) {
+      target = '_blank'
+      rel = isAffiliate ? 'sponsored nofollow noopener' : 'noopener'
+    }
+  }
+}
+---
+
+{!mark && <Fragment>{text}</Fragment>}
+
+{
+  mark === 'strong' && (
+    <strong>
+      <Self marks={rest} text={text} markDefs={markDefs} />
+    </strong>
+  )
+}
+{
+  mark === 'em' && (
+    <em>
+      <Self marks={rest} text={text} markDefs={markDefs} />
+    </em>
+  )
+}
+{
+  mark === 'code' && (
+    <code>
+      <Self marks={rest} text={text} markDefs={markDefs} />
+    </code>
+  )
+}
+{
+  href && (
+    <a href={href} rel={rel} target={target} data-affiliate={isAffiliate ? 'true' : undefined}>
+      <Self marks={rest} text={text} markDefs={markDefs} />
+    </a>
+  )
+}
+{
+  mark && !['strong', 'em', 'code'].includes(mark) && !href && (
+    <Self marks={rest} text={text} markDefs={markDefs} />
+  )
+}

@@ -1,0 +1,75 @@
+---
+import { formatDate, formatNumber } from '../../lib/format'
+import { WATERPROOF_LABEL } from '../../lib/labels'
+import type { ShoeSummary } from '../../lib/types'
+
+/**
+ * 実測スペック表（1モデル）。実測値が主で、公称値は括弧で併記する。
+ * caption に実測日と計測器具を必ず出す（C7）。
+ */
+interface Props {
+  shoe: ShoeSummary
+  showOfficial?: boolean
+}
+const { shoe, showOfficial = true } = Astro.props
+const m = shoe.specMeasured ?? {}
+const o = shoe.specOfficial ?? {}
+
+type Row = { label: string; measured?: string; official?: string }
+const size = typeof m.measuredSizeCm === 'number' ? `（${m.measuredSizeCm}cm）` : ''
+
+const rows: Row[] = [
+  {
+    label: `片足重量${size}`,
+    measured: typeof m.weightG === 'number' ? `${m.weightG}g` : undefined,
+    official: typeof o.weightG === 'number' ? `${o.weightG}g` : undefined,
+  },
+  {
+    label: 'ソール厚',
+    measured: typeof m.soleThicknessMm === 'number' ? `${m.soleThicknessMm}mm` : undefined,
+    official: typeof o.soleThicknessMm === 'number' ? `${o.soleThicknessMm}mm` : undefined,
+  },
+  {
+    label: 'ドロップ',
+    measured: typeof m.dropMm === 'number' ? `${m.dropMm}mm` : undefined,
+    official: typeof o.dropMm === 'number' ? `${o.dropMm}mm` : undefined,
+  },
+  {
+    label: 'トゥボックス最大幅',
+    measured: typeof m.toeboxWidthMm === 'number' ? `${m.toeboxWidthMm}mm` : undefined,
+  },
+  {
+    label: '防水性',
+    measured: o.waterproof ? WATERPROOF_LABEL[o.waterproof] : undefined,
+  },
+  {
+    label: 'ミニマリストインデックス',
+    measured: typeof shoe.miScore === 'number' ? formatNumber(shoe.miScore) : undefined,
+  },
+].filter((r) => r.measured || r.official)
+
+const captionParts = [
+  m.measuredAt ? `実測日: ${formatDate(m.measuredAt)}` : null,
+  m.measuredWith ? `計測: ${m.measuredWith}` : null,
+].filter(Boolean)
+---
+
+<table class="spec">
+  <caption>
+    {[shoe.brand?.name, shoe.name].filter(Boolean).join(' ')} の実測スペック
+    {captionParts.length > 0 && ` ／ ${captionParts.join(' ／ ')}`}
+  </caption>
+  <tbody>
+    {
+      rows.map((r) => (
+        <tr>
+          <th scope="row">{r.label}</th>
+          <td>
+            <b>{r.measured ?? '—'}</b>
+            {showOfficial && r.official && `（公称 ${r.official}）`}
+          </td>
+        </tr>
+      ))
+    }
+  </tbody>
+</table>

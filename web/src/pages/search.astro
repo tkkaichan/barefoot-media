@@ -1,0 +1,80 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { getAllPosts, getNav, getSiteSettings } from '../lib/queries'
+
+import '../styles/doc.css'
+
+/**
+ * サイト内検索。全記事のタイトル・定義文・カテゴリをビルド時にJSONで焼き込み、
+ * クライアント側で絞り込む（外部サービスなし・JSは数KB）。
+ * 記事数が数百本に増えたら Pagefind 等への差し替えを検討する。
+ */
+const [site, nav, posts] = await Promise.all([getSiteSettings(), getNav(), getAllPosts()])
+
+const index = posts.map((p) => ({
+  t: p.title,
+  s: p.slug,
+  d: p.leadDefinition ?? '',
+  c: p.category?.title ?? '',
+  k: [p.title, p.leadDefinition, p.category?.title, ...(p.topics ?? []).map((x) => x.title)]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase(),
+}))
+---
+
+<BaseLayout site={site} nav={nav} title="記事を探す" noindex template="doc">
+  <div class="container">
+    <div class="page-head">
+      <p class="page-en">SEARCH</p>
+      <h1>記事を探す</h1>
+    </div>
+
+    <div class="doc doc--narrow">
+      <div class="form" style="padding:24px">
+        <label for="q">キーワード</label>
+        <input id="q" type="text" placeholder="例: 外反母趾 / サイズ感 / ワークマン" autocomplete="off" />
+      </div>
+
+      <p class="filter-count" data-search-count style="margin-top:20px"></p>
+      <ol class="rank" data-search-results></ol>
+      <p data-search-empty hidden>該当する記事が見つかりませんでした。</p>
+    </div>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ index }} is:inline>
+  window.__searchIndex = index
+</script>
+<script>
+  const input = document.getElementById('q') as HTMLInputElement | null
+  const results = document.querySelector<HTMLElement>('[data-search-results]')
+  const count = document.querySelector<HTMLElement>('[data-search-count]')
+  const empty = document.querySelector<HTMLElement>('[data-search-empty]')
+  const index: Array<{ t: string; s: string; d: string; c: string; k: string }> =
+    (window as any).__searchIndex ?? []
+
+  function render(query: string) {
+    if (!results || !count || !empty) return
+    const q = query.trim().toLowerCase()
+    const hits = q ? index.filter((item) => q.split(/\s+/).every((w) => item.k.includes(w))) : []
+    results.innerHTML = hits
+      .slice(0, 40)
+      .map(
+        (h, i) =>
+          `<li><a href="/articles/${h.s}/"><span class="no">${String(i + 1).padStart(2, '0')}</span><span class="t">${h.t}</span></a></li>`,
+      )
+      .join('')
+    count.textContent = q ? `${hits.length}件` : ''
+    empty.hidden = !q || hits.length > 0
+  }
+
+  input?.addEventListener('input', () => render(input.value))
+
+  // ?q= 付きで来たときは初期表示から絞り込む
+  const initial = new URLSearchParams(location.search).get('q')
+  if (initial && input) {
+    input.value = initial
+    render(initial)
+  }
+</script>

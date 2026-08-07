@@ -1,0 +1,231 @@
+---
+import type { GetStaticPaths } from 'astro'
+import ArticleCard from '../../components/ArticleCard.astro'
+import Arrow from '../../components/Arrow.astro'
+import Breadcrumbs from '../../components/Breadcrumbs.astro'
+import NewsletterBand from '../../components/NewsletterBand.astro'
+import SectionHead from '../../components/SectionHead.astro'
+import BuyBox from '../../components/portable/BuyBox.astro'
+import ComparisonTable from '../../components/portable/ComparisonTable.astro'
+import SpecTable from '../../components/portable/SpecTable.astro'
+import TestConditions from '../../components/portable/TestConditions.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { formatDate } from '../../lib/format'
+import { altText, imageUrl, srcSet } from '../../lib/image'
+import { breadcrumbLd, shoeDetailLd } from '../../lib/jsonld'
+import { SHOE_CATEGORY_LABEL } from '../../lib/labels'
+import { getNav, getShoe, getShoeSlugs, getSiteSettings } from '../../lib/queries'
+
+import '../../styles/article.css'
+import '../../styles/shoes.css'
+
+/** シューズDB詳細。Product + Review の構造化データを出す。 */
+export const getStaticPaths: GetStaticPaths = async () => {
+  const slugs = await getShoeSlugs()
+  return slugs.map((slug) => ({ params: { slug } }))
+}
+
+const { slug } = Astro.params
+const [site, nav, shoe] = await Promise.all([getSiteSettings(), getNav(), getShoe(String(slug))])
+
+if (!shoe) throw new Error(`モデルが見つかりません: ${slug}`)
+
+const relatedPosts = (shoe as any).relatedPosts ?? []
+const fullName = [shoe.brand?.name, shoe.nameJa || shoe.name].filter(Boolean).join(' ')
+
+const trail = [
+  { name: 'ホーム', path: '/' },
+  { name: 'シューズDB', path: '/shoes/' },
+  { name: fullName },
+]
+
+const ratingRows = [
+  ['接地感', shoe.ratings?.groundFeel],
+  ['耐久性', shoe.ratings?.durability],
+  ['耐水性', shoe.ratings?.waterResistance],
+  ['慣らしやすさ', shoe.ratings?.easeOfTransition],
+  ['コスパ', shoe.ratings?.costPerformance],
+  ['総合', shoe.ratings?.overall],
+].filter(([, v]) => typeof v === 'number') as Array<[string, number]>
+
+const jsonLd = [breadcrumbLd(site, trail), ...shoeDetailLd(site, shoe, site.primaryAuthor)]
+
+const description =
+  shoe.summary ||
+  `${fullName}の実測スペックと畑テスト結果。重量・ソール厚・トゥボックス幅・浸水時間をすべて自分で計測しています。`
+---
+
+<BaseLayout
+  site={site}
+  nav={nav}
+  title={fullName}
+  description={description}
+  ogImage={shoe.imageMain}
+  template="article"
+  jsonLd={jsonLd}
+>
+  <div class="container">
+    <Breadcrumbs trail={trail} />
+
+    <div class="shoe-hero">
+      <div>
+        <div class="shoe-photo">
+          {
+            shoe.imageMain && (
+              <img
+                src={imageUrl(shoe.imageMain, 800, 600)}
+                srcset={srcSet(shoe.imageMain, [520, 800, 1200], 4 / 3)}
+                sizes="(max-width: 960px) 100vw, 440px"
+                width="800"
+                height="600"
+                alt={altText(shoe.imageMain, `${fullName}の写真`)}
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
+              />
+            )
+          }
+        </div>
+        {
+          shoe.images && shoe.images.length > 0 && (
+            <div class="shoe-gallery">
+              {shoe.images.map((img) => (
+                <figure>
+                  <img
+                    src={imageUrl(img, 300, 300)}
+                    width="150"
+                    height="150"
+                    alt={altText(img, `${fullName}の追加写真`)}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  {(img.caption || img.shotAt) && (
+                    <figcaption>
+                      {[img.caption, img.shotAt ? formatDate(img.shotAt) : null]
+                        .filter(Boolean)
+                        .join(' / ')}
+                    </figcaption>
+                  )}
+                </figure>
+              ))}
+            </div>
+          )
+        }
+      </div>
+
+      <div class="shoe-title">
+        <span class="brand">
+          {shoe.brand?.name}
+          {shoe.category ? ` / ${SHOE_CATEGORY_LABEL[shoe.category] ?? shoe.category}` : ''}
+        </span>
+        <h1>{shoe.nameJa || shoe.name}</h1>
+        {shoe.summary && <p class="shoe-summary">{shoe.summary}</p>}
+
+        {
+          ratingRows.length > 0 && (
+            <ul class="ratings">
+              {ratingRows.map(([label, value]) => (
+                <li>
+                  <span class="rl">{label}</span>
+                  <span class="rv">{value.toFixed(1)}</span>
+                  <span class="bar" role="img" aria-label={`${label} 5点中${value}点`}>
+                    <span style={`width:${(value / 5) * 100}%`} />
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+
+        <BuyBox shoe={shoe} site={site} />
+      </div>
+    </div>
+
+    <article class="post" style="max-width:none">
+      <TestConditions shoe={shoe} />
+
+      <h2 id="spec"><span class="no">01</span><span>実測スペック</span></h2>
+      <SpecTable shoe={shoe} />
+
+      {
+        shoe.sceneMatrix && shoe.sceneMatrix.length > 0 && (
+          <>
+            <h2 id="scenes">
+              <span class="no">02</span>
+              <span>シーン別の向き不向き</span>
+            </h2>
+            <ComparisonTable
+              shoes={[shoe]}
+              caption={`${fullName}のシーン別適合`}
+              layout="sceneMatrix"
+            />
+          </>
+        )
+      }
+
+      {
+        ((shoe.pros && shoe.pros.length > 0) || (shoe.cons && shoe.cons.length > 0)) && (
+          <>
+            <h2 id="proscons">
+              <span class="no">{shoe.sceneMatrix?.length ? '03' : '02'}</span>
+              <span>良かった点・合わなかった点</span>
+            </h2>
+            <div class="proscons">
+              <div>
+                <h3>良かった点</h3>
+                <ul>{(shoe.pros ?? []).map((p) => <li>{p}</li>)}</ul>
+              </div>
+              <div>
+                <h3>合わなかった点</h3>
+                <ul>{(shoe.cons ?? []).map((c) => <li>{c}</li>)}</ul>
+              </div>
+            </div>
+          </>
+        )
+      }
+
+      {
+        shoe.fieldTest?.soleWearNote && (
+          <>
+            <h3>ソール摩耗の経過</h3>
+            <p>{shoe.fieldTest.soleWearNote}</p>
+          </>
+        )
+      }
+
+      {
+        shoe.brand?.officialStoreNote && (
+          <p class="disclaim">
+            <b>正規流通について:</b> {shoe.brand.officialStoreNote}
+          </p>
+        )
+      }
+
+      {
+        shoe.reviewArticle && (
+          <p>
+            <a href={`/articles/${shoe.reviewArticle.slug}/`} class="link-arrow">
+              {shoe.reviewArticle.title}を読む
+              <Arrow width={22} />
+            </a>
+          </p>
+        )
+      }
+    </article>
+
+    {
+      relatedPosts.length > 0 && (
+        <div style="padding-bottom:72px">
+          <SectionHead en="RELATED" title="このモデルを扱った記事" />
+          <div class="cards">
+            {relatedPosts.map((post: any) => (
+              <ArticleCard post={post} />
+            ))}
+          </div>
+        </div>
+      )
+    }
+  </div>
+
+  <NewsletterBand slot="after-main" site={site} source="shoe-detail-band" />
+</BaseLayout>

@@ -1,0 +1,61 @@
+---
+import Chevron from './Chevron.astro'
+
+/**
+ * ページネーション。ページ数が多いときは前後2ページ＋端だけ出す。
+ * basePath は末尾スラッシュ付きで渡す（例: /articles/）。1ページ目は basePath そのもの。
+ */
+interface Props {
+  current: number
+  total: number
+  basePath: string
+}
+const { current, total, basePath } = Astro.props
+
+const href = (n: number) => (n === 1 ? basePath : `${basePath}${n}/`)
+
+const pages: Array<number | 'gap'> = []
+for (let n = 1; n <= total; n++) {
+  if (n === 1 || n === total || Math.abs(n - current) <= 2) {
+    pages.push(n)
+  } else if (pages[pages.length - 1] !== 'gap') {
+    pages.push('gap')
+  }
+}
+---
+
+{
+  total > 1 && (
+    <nav class="pager" aria-label="ページ送り">
+      {current > 1 && (
+        <a href={href(current - 1)} rel="prev" aria-label="前のページ">
+          <Chevron class="flip" />
+        </a>
+      )}
+      {pages.map((p) =>
+        p === 'gap' ? (
+          <span class="gap" aria-hidden="true">
+            …
+          </span>
+        ) : p === current ? (
+          <span class="on" aria-current="page">
+            {p}
+          </span>
+        ) : (
+          <a href={href(p)}>{p}</a>
+        ),
+      )}
+      {current < total && (
+        <a href={href(current + 1)} rel="next" aria-label="次のページ">
+          <Chevron />
+        </a>
+      )}
+    </nav>
+  )
+}
+
+<style>
+  .pager :global(.flip) {
+    transform: rotate(180deg);
+  }
+</style>

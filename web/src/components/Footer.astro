@@ -1,0 +1,28 @@
+---
+import type { SiteSettings } from '../lib/types'
+
+interface Props {
+  site: SiteSettings
+}
+const { site } = Astro.props
+const year = new Date().getFullYear()
+const links = site.footerLinks ?? [
+  { label: '運営者情報', href: '/about/' },
+  { label: 'テストポリシー', href: '/test-policy/' },
+  { label: 'プライバシーポリシー', href: '/privacy/' },
+  { label: 'お問い合わせ', href: '/contact/' },
+]
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="foot">
+      <p>{site.siteName}{site.tagline ? ` — ${site.tagline}` : ''}</p>
+      <nav class="foot-links" aria-label="フッターナビゲーション">
+        {links.map((l) => <a href={l.href}>{l.label}</a>)}
+        <a href="/rss.xml">RSS</a>
+      </nav>
+    </div>
+    <p class="copyright">© {year} {site.siteNameEn || site.siteName}</p>
+  </div>
+</footer>

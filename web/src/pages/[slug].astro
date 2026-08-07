@@ -1,0 +1,32 @@
+---
+import type { GetStaticPaths } from 'astro'
+import NewsletterBand from '../components/NewsletterBand.astro'
+import DocLayout from '../layouts/DocLayout.astro'
+import { getNav, getPage, getPageRefs, getSiteSettings } from '../lib/queries'
+
+/**
+ * root 直下の固定ページ: /privacy/ /disclaimer/ /about/ /test-policy/ /thanks/ など。
+ * LP（template: 'lp'）は /lp/[slug]/、お問い合わせは /contact/ が専用で受け持つので除外する。
+ */
+export const getStaticPaths: GetStaticPaths = async () => {
+  // 専用ルートを持つスラッグ。getStaticPaths はモジュールスコープから切り離されて
+  // 実行されるため、外側の定数を参照せずこの中で定義する
+  const reserved = new Set(['contact'])
+  const refs = await getPageRefs()
+  return refs
+    .filter((r) => r.template !== 'lp' && !reserved.has(r.slug))
+    .map((r) => ({ params: { slug: r.slug } }))
+}
+
+const { slug } = Astro.params
+const [site, nav, page] = await Promise.all([getSiteSettings(), getNav(), getPage(String(slug))])
+
+if (!page) throw new Error(`固定ページが見つかりません: ${slug}`)
+
+// サンクスページはメール内リンクの着地点なので検索結果に出さない
+const isThanks = page.slug === 'thanks'
+---
+
+<DocLayout site={site} nav={nav} page={{ ...page, seo: { ...page.seo, noindex: page.seo?.noindex ?? isThanks } }}>
+  {!isThanks && <NewsletterBand slot="after-main" site={site} source={`page-${page.slug}`} />}
+</DocLayout>

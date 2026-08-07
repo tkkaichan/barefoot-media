@@ -1,0 +1,219 @@
+/*
+ * シューズDB（一覧・詳細）。モックに無い画面のため、
+ * サブページの型（上罫線＋mono英字ラベル＋番号付き見出し）を流用して組む。
+ * 新しい装飾は足さない。
+ */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 28px 0 24px;
+}
+.filters button {
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--sans);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.filters button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.filters button[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+.filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.filter-group > .filter-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+  margin-right: 4px;
+}
+.filter-count {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+}
+
+.shoe-row-name {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.shoe-row-name img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  flex-shrink: 0;
+  background: var(--bg-soft);
+}
+.shoe-row-name .brand {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+  display: block;
+}
+.shoe-row-name a {
+  font-weight: 500;
+  color: var(--ink);
+}
+.shoe-row-name a:hover {
+  color: var(--accent);
+}
+tr[hidden] {
+  display: none;
+}
+
+/* 詳細ページ */
+.shoe-hero {
+  display: grid;
+  grid-template-columns: 5fr 7fr;
+  gap: 44px;
+  align-items: start;
+  padding: 40px 0 8px;
+}
+.shoe-photo {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-soft);
+}
+.shoe-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.shoe-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+.shoe-gallery figure {
+  margin: 0;
+}
+.shoe-gallery img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--radius);
+  display: block;
+}
+.shoe-gallery figcaption {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-soft);
+  margin-top: 6px;
+}
+.shoe-title .brand {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+.shoe-title h1 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.2vw, 34px);
+  font-weight: 600;
+  line-height: 1.5;
+  margin-top: 10px;
+  text-wrap: balance;
+}
+.shoe-summary {
+  margin-top: 14px;
+  font-size: 14.5px;
+  color: var(--ink-soft);
+}
+
+/* 評価5軸 */
+.ratings {
+  list-style: none;
+  margin: 24px 0 0;
+  border-top: 1px solid var(--line);
+}
+.ratings li {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13.5px;
+}
+.ratings .rl {
+  width: 9em;
+  flex-shrink: 0;
+  color: var(--ink-soft);
+}
+.ratings .rv {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  width: 3.5em;
+  flex-shrink: 0;
+}
+.ratings .bar {
+  flex: 1;
+  height: 4px;
+  background: var(--bg-soft);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.ratings .bar span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+.proscons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin: 26px 0;
+}
+.proscons > div {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+}
+.proscons h3 {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+.proscons ul {
+  margin: 0 0 0 1.2em;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+}
+.proscons li {
+  margin-bottom: 6px;
+}
+
+@media (max-width: 960px) {
+  .shoe-hero {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .proscons {
+    grid-template-columns: 1fr;
+  }
+}

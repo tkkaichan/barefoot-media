@@ -1,0 +1,60 @@
+---
+import Arrow from './Arrow.astro'
+import type { Heading } from '../lib/portableText'
+import type { SiteSettings } from '../lib/types'
+
+/** 追従目次＋その下のメール登録。960px以下では非表示（モック準拠）。 */
+interface Props {
+  headings: Heading[]
+  site: SiteSettings
+}
+const { headings, site } = Astro.props
+---
+
+{
+  headings.length > 0 && (
+    <nav class="toc" aria-label="目次">
+      <p class="toc-head">CONTENTS</p>
+      <ol>
+        {headings.map((h) => (
+          <li>
+            <a href={`#${h.id}`} data-toc-link>{`${h.number} ${h.text}`}</a>
+          </li>
+        ))}
+      </ol>
+      <div class="toc-news">
+        <h5>{site.newsletterSidebarHeadline ?? '移行30日カレンダー（PDF）無料配布中'}</h5>
+        <a href="/lp/transition-30days/">
+          受け取る
+          <Arrow width={20} />
+        </a>
+      </div>
+    </nav>
+  )
+}
+
+<script>
+  // スクロールスパイ。今読んでいる見出しの目次項目に .on を付ける
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'))
+  if (links.length > 0) {
+    const targets = links
+      .map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))))
+      .filter((el): el is HTMLElement => Boolean(el))
+
+    const setActive = (id: string) => {
+      links.forEach((link) => link.classList.toggle('on', link.hash === `#${id}`))
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]
+        if (visible) setActive(visible.target.id)
+      },
+      // ヘッダー高ぶん上を除外し、画面上部 1/3 に入った見出しを「現在地」とみなす
+      { rootMargin: '-88px 0px -66% 0px', threshold: 0 },
+    )
+    targets.forEach((el) => observer.observe(el))
+  }
+</script>

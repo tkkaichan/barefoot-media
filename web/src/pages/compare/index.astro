@@ -1,0 +1,74 @@
+---
+import Breadcrumbs from '../../components/Breadcrumbs.astro'
+import ComparisonTable from '../../components/portable/ComparisonTable.astro'
+import NewsletterBand from '../../components/NewsletterBand.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { breadcrumbLd, itemListLd } from '../../lib/jsonld'
+import { getAllShoes, getNav, getSiteSettings } from '../../lib/queries'
+
+import '../../styles/article.css'
+import '../../styles/shoes.css'
+
+/**
+ * 比較表ページ。DBの全モデルを横並びにする（H1の列 + H3のシーン別マトリクス）。
+ * 記事内の比較表は comparisonTable ブロックで個別に組む。
+ */
+const [site, nav, shoes] = await Promise.all([getSiteSettings(), getNav(), getAllShoes()])
+
+const trail = [{ name: 'ホーム', path: '/' }, { name: '比較表', path: '/compare/' }]
+
+const COLUMNS = [
+  'priceJpy',
+  'weightG',
+  'soleThicknessMm',
+  'dropMm',
+  'toeboxWidthMm',
+  'waterproof',
+  'transitionDifficulty',
+  'overall',
+]
+
+const jsonLd = [
+  breadcrumbLd(site, trail),
+  itemListLd(
+    site,
+    shoes.map((s) => ({
+      name: [s.brand?.name, s.name].filter(Boolean).join(' '),
+      path: `/shoes/${s.slug}/`,
+    })),
+  ),
+]
+---
+
+<BaseLayout
+  site={site}
+  nav={nav}
+  title="ベアフットシューズ比較表"
+  description={`ベアフットシューズ${shoes.length}モデルを同一条件で比較。重量・ソール厚・ドロップ・トゥボックス幅はすべて実測値です。`}
+  jsonLd={jsonLd}
+>
+  <div class="container">
+    <Breadcrumbs trail={trail} />
+    <div class="page-head">
+      <p class="page-en">COMPARE</p>
+      <h1>ベアフットシューズ比較表</h1>
+      <p class="page-lead">
+        公開中の{shoes.length}モデルを同一条件で並べています。数値はすべて自分で計測した実測値です。
+      </p>
+    </div>
+
+    <article class="post" style="max-width:none;padding-bottom:72px">
+      <h2 id="spec"><span class="no">01</span><span>スペック比較</span></h2>
+      <ComparisonTable shoes={shoes} columns={COLUMNS} caption="全モデルのスペック比較（実測値）" />
+
+      <h2 id="scenes"><span class="no">02</span><span>シーン別の向き不向き</span></h2>
+      <ComparisonTable
+        shoes={shoes}
+        caption="シーン別の適合マトリクス（◎最適／○使える／△条件付き／×向かない）"
+        layout="sceneMatrix"
+      />
+    </article>
+  </div>
+
+  <NewsletterBand slot="after-main" site={site} source="compare-band" />
+</BaseLayout>

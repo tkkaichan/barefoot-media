@@ -1,0 +1,96 @@
+---
+import Arrow from './Arrow.astro'
+import NewsletterForm from './NewsletterForm.astro'
+import { altText, imageUrl } from '../lib/image'
+import type { Homepage, NavData, PostCard, SiteSettings } from '../lib/types'
+
+/**
+ * 一覧系ページの右サイドバー（320px）。
+ * 並びは DESIGN.md 固定: 著者ボックス → まずこの3本から → メール登録（反転）→ カテゴリチップ。
+ */
+interface Props {
+  site: SiteSettings
+  nav: NavData
+  homepage?: Homepage | null
+  startHere?: PostCard[]
+}
+const { site, nav, homepage, startHere } = Astro.props
+
+const author = site.primaryAuthor
+const picks = startHere ?? homepage?.startHerePosts ?? []
+const startTitle = homepage?.startHereTitle ?? 'まずこの3本から'
+const startLabelEn = homepage?.startHereLabelEn ?? 'START HERE'
+---
+
+<aside class="sidebar">
+  {
+    author && (
+      <div>
+        <div class="author">
+          <div class="author-photo">
+            {author.photo && (
+              <img
+                src={imageUrl(author.photo, 152, 152)}
+                width="76"
+                height="76"
+                alt={altText(author.photo, `${author.name}の近影`)}
+                loading="lazy"
+                decoding="async"
+              />
+            )}
+          </div>
+          <h5>{author.name}</h5>
+          <p>{author.bio}</p>
+          <a href="/test-policy/" class="author-link">
+            テストの方針を読む
+            <Arrow width={20} />
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  {
+    picks.length > 0 && (
+      <div>
+        <div class="side-head">
+          <span class="sec-en">{startLabelEn}</span>
+          <h4>{startTitle}</h4>
+        </div>
+        <ol class="rank">
+          {picks.map((p, i) => (
+            <li>
+              <a href={`/articles/${p.slug}/`}>
+                <span class="no">{String(i + 1).padStart(2, '0')}</span>
+                <span class="t">{p.title}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+    )
+  }
+
+  <div class="side-news">
+    <h5>{site.newsletterSidebarHeadline ?? '移行30日カレンダー（PDF）を無料配布中'}</h5>
+    {site.newsletterSidebarBody && <p>{site.newsletterSidebarBody}</p>}
+    <NewsletterForm site={site} variant="sidebar" leadMagnet="LM1" source="sidebar" />
+    <p class="side-micro">{site.newsletterMicrocopy ?? '週1通 / 1クリックで解除できます'}</p>
+  </div>
+
+  {
+    nav.topics.length > 0 && (
+      <div>
+        <div class="side-head">
+          <span class="sec-en">CATEGORY</span>
+          <h4>カテゴリから探す</h4>
+        </div>
+        <div class="cats">
+          {nav.topics.map((t) => (
+            <a href={`/topic/${t.slug}/`}>{t.title}</a>
+          ))}
+        </div>
+      </div>
+    )
+  }
+</aside>

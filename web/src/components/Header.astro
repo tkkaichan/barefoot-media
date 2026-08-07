@@ -1,0 +1,112 @@
+---
+import type { NavData, SiteSettings } from '../lib/types'
+
+interface Props {
+  site: SiteSettings
+  nav: NavData
+  currentPath?: string
+}
+const { site, nav, currentPath = '' } = Astro.props
+const ctaLabel = site.navCtaLabel ?? '移行30日ガイド'
+const ctaHref = site.navCtaHref ?? '/lp/transition-30days/'
+---
+
+<a class="skip-link" href="#main">本文へスキップ</a>
+
+<header class="site-header">
+  <div class="container nav">
+    <a href="/" class="logo">
+      {site.siteName}
+      {site.siteNameEn && <small>{site.siteNameEn}</small>}
+    </a>
+
+    <nav class="nav-links" aria-label="メインナビゲーション">
+      {
+        nav.categories.map((c) => (
+          <a
+            href={`/category/${c.slug}/`}
+            aria-current={currentPath.startsWith(`/category/${c.slug}/`) ? 'page' : undefined}
+          >
+            {c.navTitle || c.title}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="nav-right">
+      <a href="/search/" class="search">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <path d="M21 21l-4.3-4.3"></path>
+        </svg>
+        記事を探す
+      </a>
+      <a href={ctaHref} class="nav-cta">{ctaLabel}</a>
+    </div>
+
+    <button
+      class="nav-toggle"
+      type="button"
+      aria-label="メニューを開く"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      data-menu-open-button
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18"></path>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- モバイルメニュー: モックに存在しない唯一の新規UI（design-brief 準拠のフルスクリーンオーバーレイ） -->
+<div class="mobile-menu" id="mobile-menu" data-open="false" hidden>
+  <div class="container mobile-menu-top">
+    <a href="/" class="logo">
+      {site.siteName}
+      {site.siteNameEn && <small>{site.siteNameEn}</small>}
+    </a>
+    <button class="mobile-menu-close" type="button" aria-label="メニューを閉じる" data-menu-close-button>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18"></path>
+      </svg>
+    </button>
+  </div>
+  <div class="container">
+    <nav aria-label="モバイルナビゲーション">
+      {nav.categories.map((c) => <a href={`/category/${c.slug}/`}>{c.navTitle || c.title}</a>)}
+      <a href="/shoes/">シューズDB</a>
+      <a href="/search/">記事を探す</a>
+    </nav>
+    <a href={ctaHref} class="nav-cta">{ctaLabel}</a>
+  </div>
+</div>
+
+<script>
+  const menu = document.getElementById('mobile-menu')
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open-button]')
+  const closeBtn = document.querySelector<HTMLButtonElement>('[data-menu-close-button]')
+
+  function setOpen(open: boolean) {
+    if (!menu || !openBtn) return
+    menu.dataset.open = String(open)
+    menu.hidden = !open
+    openBtn.setAttribute('aria-expanded', String(open))
+    document.body.dataset.menuOpen = String(open)
+    if (open) {
+      menu.querySelector<HTMLElement>('a, button')?.focus()
+    } else {
+      openBtn.focus()
+    }
+  }
+
+  openBtn?.addEventListener('click', () => setOpen(true))
+  closeBtn?.addEventListener('click', () => setOpen(false))
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menu?.dataset.open === 'true') setOpen(false)
+  })
+  // 960px を超えたら開きっぱなしにしない
+  window.matchMedia('(min-width: 961px)').addEventListener('change', (e) => {
+    if (e.matches) setOpen(false)
+  })
+</script>

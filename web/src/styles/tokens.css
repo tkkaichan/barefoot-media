@@ -1,0 +1,39 @@
+/*
+ * デザイントークン。値の正は docs/design-mockups/plan-c2-portal-hero.html の :root。
+ * ここを変えるとサイト全体の見た目が変わる。値の変更は DESIGN.md の更新とセットで行う。
+ */
+:root {
+  /* 色（DESIGN.md front-matter と同値） */
+  --bg: #f4f4f4;
+  --bg-soft: #ebebeb;
+  --surface: #ffffff;
+  --ink: #222220;
+  --ink-soft: #6b6b67;
+  --line: #dfdfdd;
+  --accent: #42603b;
+  --accent-deep: #33492e;
+  --accent-tint: #a9c39b;
+
+  /* 反転ブロック（メール登録）専用。モックのハードコード値をトークン化したもの */
+  --inverted-fg: #f2efe6;
+  --inverted-input-bg: #2c3f28;
+  --inverted-input-border: #5e7852;
+  --inverted-placeholder: #8fa383;
+  --inverted-micro: #9fb292;
+
+  /* 書体 */
+  --serif: 'Shippori Mincho B1', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+  --sans: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* レイアウト */
+  --container: 1160px;
+  --container-pad: 28px;
+  --measure: 720px; /* 記事本文の行長（680〜760px の中央値） */
+  --sidebar: 320px;
+  --header-h: 60px;
+
+  /* 角丸。ほぼ直角を維持する */
+  --radius: 2px;
+  --radius-pill: 999px;
+}

@@ -1,0 +1,542 @@
+/*
+ * 記事詳細テンプレート。page-article.html からの移植。
+ * 記事ページだけ body の font-size / line-height が上がる（16px / 2.0）。
+ */
+
+body[data-template='article'] {
+  font-size: 16px;
+  line-height: 2;
+}
+
+.progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background: var(--accent);
+  z-index: 60;
+  transform-origin: left;
+}
+
+.article-grid {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 64px;
+  padding: 28px 0 88px;
+}
+article.post {
+  max-width: var(--measure);
+  min-width: 0;
+}
+
+.a-head .cat {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+.a-head h1 {
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.4vw, 36px);
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  margin-top: 12px;
+  text-wrap: balance;
+}
+.a-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 16px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 20px;
+  font-variant-numeric: tabular-nums;
+}
+.a-meta b {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* テスト条件ストリップ（R2） */
+.test-cond {
+  display: flex;
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin: 26px 0;
+  flex-wrap: wrap;
+}
+.tc {
+  padding: 16px 22px;
+  border-left: 1px solid var(--line);
+  flex: 1;
+  min-width: 140px;
+}
+.tc:first-child {
+  border-left: none;
+}
+.tc dt {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+}
+.tc dd {
+  font-size: 13.5px;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.test-cond-link {
+  display: block;
+  font-size: 11.5px;
+  margin: -14px 0 26px;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.a-photo {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 8px 0 28px;
+  position: relative;
+  background: var(--bg-soft);
+}
+.a-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.a-caption {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin: -18px 0 28px;
+  font-family: var(--mono);
+}
+
+/* 本文 */
+article.post p {
+  margin-bottom: 26px;
+  color: #33322e;
+}
+article.post .lead {
+  font-size: 16.5px;
+}
+article.post h2 {
+  font-family: var(--serif);
+  font-size: 23px;
+  font-weight: 600;
+  line-height: 1.6;
+  border-top: 1px solid var(--ink);
+  padding-top: 18px;
+  margin: 52px 0 20px;
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  text-wrap: balance;
+}
+article.post h2 .no {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 400;
+  flex-shrink: 0;
+}
+article.post h3 {
+  font-size: 17.5px;
+  font-weight: 700;
+  margin: 36px 0 14px;
+}
+article.post ul,
+article.post ol {
+  margin: 0 0 26px 1.4em;
+}
+article.post li {
+  margin-bottom: 8px;
+  color: #33322e;
+}
+article.post a:not(.btn-amazon):not(.btn-rakuten):not(.btn-primary) {
+  color: var(--accent);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+article.post a:not(.btn-amazon):not(.btn-rakuten):not(.btn-primary):hover {
+  text-decoration-color: var(--accent);
+}
+article.post figure {
+  margin: 32px 0;
+}
+article.post figure img {
+  width: 100%;
+  border-radius: var(--radius);
+  display: block;
+}
+article.post figcaption {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 10px;
+  font-family: var(--mono);
+}
+article.post blockquote {
+  border-left: 1px solid var(--line);
+  padding-left: 20px;
+  margin: 0 0 26px;
+  color: var(--ink-soft);
+}
+article.post code {
+  font-family: var(--mono);
+  font-size: 0.92em;
+  background: var(--bg-soft);
+  padding: 2px 6px;
+  border-radius: var(--radius);
+}
+
+/* 表（スペック・比較・エビデンス共通） */
+.spec {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 26px 0;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.spec caption {
+  text-align: left;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  padding-bottom: 8px;
+  font-family: var(--mono);
+}
+.spec th,
+.spec td {
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  text-align: left;
+  vertical-align: top;
+}
+.spec th[scope='row'] {
+  background: var(--bg-soft);
+  font-weight: 500;
+  color: var(--ink-soft);
+  width: 38%;
+}
+.spec thead th {
+  background: var(--bg-soft);
+  font-weight: 500;
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+.spec td {
+  font-variant-numeric: tabular-nums;
+}
+.spec td b {
+  font-family: var(--mono);
+  font-weight: 500;
+}
+.spec tr:last-child th,
+.spec tr:last-child td {
+  border-bottom: none;
+}
+/* 横に長い比較表はテーブル単位で横スクロールさせる */
+.table-scroll {
+  overflow-x: auto;
+  margin: 26px 0;
+}
+.table-scroll .spec {
+  margin: 0;
+  min-width: 640px;
+}
+
+/* フィールドノート引用 */
+.quote {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 22px 4px;
+  margin: 32px 0;
+  font-family: var(--serif);
+  font-size: 16.5px;
+  line-height: 2;
+}
+.quote small {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-top: 10px;
+}
+
+/* 購入ボタン枠 */
+.buy {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 26px;
+  margin: 36px 0;
+}
+.buy h4 {
+  font-size: 15px;
+  font-weight: 700;
+}
+.buy .price {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+.buy-btns {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.btn-amazon,
+.btn-rakuten,
+.btn-official {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 13px 22px;
+  border-radius: var(--radius);
+  color: #fff;
+  transition: opacity 0.15s;
+}
+.btn-amazon {
+  background: var(--ink);
+}
+.btn-rakuten,
+.btn-official {
+  background: var(--accent);
+}
+.btn-amazon:hover,
+.btn-rakuten:hover,
+.btn-official:hover {
+  opacity: 0.85;
+}
+.buy .micro {
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-top: 12px;
+}
+
+/* FAQ */
+.faq {
+  margin: 30px 0;
+}
+.faq details {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: none;
+}
+.faq details:first-of-type {
+  border-top: 1px solid var(--line);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.faq details:last-of-type {
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.faq summary {
+  cursor: pointer;
+  padding: 18px 22px;
+  font-size: 14.5px;
+  font-weight: 700;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+.faq summary svg {
+  flex-shrink: 0;
+  transition: transform 0.2s ease-out;
+}
+.faq details[open] summary svg {
+  transform: rotate(90deg);
+}
+.faq .a {
+  padding: 0 22px 20px;
+  font-size: 14px;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+.disclaim {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  background: var(--bg-soft);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin: 36px 0;
+}
+
+/* 著者ボックス */
+.a-author {
+  display: flex;
+  gap: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin: 48px 0 0;
+  align-items: flex-start;
+}
+.a-author .photo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--bg-soft);
+}
+.a-author .photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.a-author h5 {
+  font-family: var(--serif);
+  font-size: 15.5px;
+  font-weight: 600;
+}
+.a-author p {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  margin: 6px 0 0;
+  line-height: 1.8;
+}
+
+/* 次に読む */
+.next {
+  margin-top: 56px;
+}
+.next-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  border-top: 1px solid var(--ink);
+  padding-top: 14px;
+  margin-bottom: 20px;
+}
+.next-head .en {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+}
+.next-head h4 {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 600;
+}
+.next a {
+  display: flex;
+  gap: 14px;
+  padding: 13px 2px;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  font-weight: 500;
+  align-items: baseline;
+  transition: padding-left 0.2s;
+}
+.next a:hover {
+  padding-left: 8px;
+}
+.next .no {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* 追従目次 */
+.toc {
+  position: sticky;
+  top: calc(var(--header-h) + 28px);
+  align-self: start;
+  min-width: 0;
+}
+.toc-head {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  border-top: 1px solid var(--ink);
+  padding-top: 12px;
+}
+.toc ol {
+  list-style: none;
+  margin-top: 14px;
+}
+.toc li {
+  border-bottom: 1px solid var(--line);
+}
+.toc a {
+  display: block;
+  padding: 10px 2px;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  transition: color 0.15s, padding-left 0.2s;
+}
+.toc a:hover {
+  color: var(--ink);
+  padding-left: 6px;
+}
+.toc a.on {
+  color: var(--accent);
+  font-weight: 700;
+}
+.toc-news {
+  margin-top: 32px;
+  background: var(--accent-deep);
+  color: var(--inverted-fg);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.toc-news h5 {
+  font-family: var(--serif);
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.7;
+}
+.toc-news a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #fff;
+  padding: 0;
+}
+.toc-news svg {
+  transition: transform 0.2s;
+}
+.toc-news a:hover svg {
+  transform: translateX(3px);
+}
+
+@media (max-width: 960px) {
+  .article-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .toc {
+    display: none;
+  }
+}

@@ -1,0 +1,22 @@
+---
+import NewsletterForm from './NewsletterForm.astro'
+import type { SiteSettings } from '../lib/types'
+
+/** 記事下・トップ下部の反転帯。サイト全体で反転はメール登録のみ。 */
+interface Props {
+  site: SiteSettings
+  leadMagnet?: string
+  source?: string
+  headline?: string
+}
+const { site, leadMagnet = 'LM1', source = 'band', headline } = Astro.props
+const text = headline || site.newsletterHeadline || '移行30日カレンダー（PDF）を無料配布しています'
+---
+
+<aside class="news-band" aria-label="メール登録">
+  <div class="nb-inner">
+    <h2>{text}</h2>
+    <NewsletterForm site={site} variant="band" leadMagnet={leadMagnet} source={source} />
+    <p class="nb-micro">{site.newsletterMicrocopy ?? '週1通 / 1クリックで解除できます'}</p>
+  </div>
+</aside>

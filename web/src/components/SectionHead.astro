@@ -1,0 +1,27 @@
+---
+import Arrow from './Arrow.astro'
+
+/** 上罫線＋mono英字ラベル＋明朝見出し。PICKUP / LATEST / SERIES の行。 */
+interface Props {
+  en: string
+  title: string
+  moreHref?: string
+  moreLabel?: string
+  level?: 2 | 3
+}
+const { en, title, moreHref, moreLabel = 'すべて見る', level = 2 } = Astro.props
+const Tag = `h${level}` as 'h2' | 'h3'
+---
+
+<div class="sec-head">
+  <span class="sec-en">{en}</span>
+  <Tag>{title}</Tag>
+  {
+    moreHref && (
+      <a class="sec-more" href={moreHref}>
+        {moreLabel}
+        <Arrow width={20} />
+      </a>
+    )
+  }
+</div>

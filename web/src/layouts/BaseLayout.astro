@@ -1,0 +1,105 @@
+---
+import Analytics from '../components/Analytics.astro'
+import Footer from '../components/Footer.astro'
+import Header from '../components/Header.astro'
+import { imageUrl } from '../lib/image'
+import { organizationLd, websiteLd } from '../lib/jsonld'
+import type { ImageWithMeta } from '../lib/image'
+import type { NavData, SiteSettings } from '../lib/types'
+
+import '../styles/tokens.css'
+import '../styles/base.css'
+import '../styles/components.css'
+
+/**
+ * 全ページ共通の外枠。
+ * JSON-LD は @graph に1本化して出す（Organization / WebSite は全ページ、
+ * ページ固有のものは jsonLd prop で渡す）。
+ */
+interface Props {
+  site: SiteSettings
+  nav: NavData
+  title: string
+  description?: string
+  /** OGP画像。未指定なら siteSettings.defaultOgImage */
+  ogImage?: ImageWithMeta
+  ogType?: 'website' | 'article'
+  canonical?: string
+  noindex?: boolean
+  /** article / doc で本文のCSSが変わる */
+  template?: 'default' | 'article' | 'doc'
+  jsonLd?: Array<Record<string, unknown>>
+}
+
+const {
+  site,
+  nav,
+  title,
+  description,
+  ogImage,
+  ogType = 'website',
+  canonical,
+  noindex = false,
+  template = 'default',
+  jsonLd = [],
+} = Astro.props
+
+const pathname = Astro.url.pathname
+const canonicalUrl = canonical || new URL(pathname, Astro.site ?? site.url).toString()
+const fullTitle = pathname === '/' ? `${site.siteName} — ${site.tagline ?? ''}`.trim() : `${title} | ${site.siteName}`
+const metaDescription = description || site.description
+const ogImageUrl = imageUrl(ogImage ?? site.defaultOgImage, 1200, 630)
+
+const graph = [organizationLd(site), websiteLd(site), ...jsonLd].filter(Boolean)
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={metaDescription} />
+    <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <!-- モックと同じ3書体。display=swap でテキストの表示を遅らせない -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;600;700&family=Noto+Sans+JP:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- OGP -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content={site.siteName} />
+    <meta property="og:locale" content="ja_JP" />
+    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="alternate" type="application/rss+xml" title={site.siteName} href="/rss.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify({ '@context': 'https://schema.org', '@graph': graph })}
+    />
+
+    <Analytics />
+  </head>
+
+  <body data-template={template}>
+    <slot name="progress" />
+    <Header site={site} nav={nav} currentPath={pathname} />
+    <main id="main">
+      <slot />
+    </main>
+    <slot name="after-main" />
+    <Footer site={site} />
+  </body>
+</html>

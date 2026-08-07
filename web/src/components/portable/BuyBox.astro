@@ -1,0 +1,74 @@
+---
+import Arrow from '../Arrow.astro'
+import { formatPrice, formatYearMonth } from '../../lib/format'
+import type { ShoeSummary, SiteSettings } from '../../lib/types'
+
+/**
+ * 購入ボタン枠。価格・リンクはシューズDBから引く。
+ * アフィリエイトリンクには rel="sponsored nofollow" とクリック計測を必ず付ける。
+ */
+interface Props {
+  shoe: ShoeSummary
+  site: SiteSettings
+}
+const { shoe, site } = Astro.props
+const a = shoe.affiliate ?? {}
+const name = [shoe.brand?.name, shoe.nameJa || shoe.name].filter(Boolean).join(' ')
+const priceNote = shoe.priceCheckedAt ? `（${formatYearMonth(shoe.priceCheckedAt)}時点）` : ''
+
+const links = [
+  { key: 'amazon', label: 'Amazonで見る', url: a.amazonUrl, cls: 'btn-amazon' },
+  { key: 'rakuten', label: '楽天で見る', url: a.rakutenUrl, cls: 'btn-rakuten' },
+  { key: 'official', label: '公式サイトで見る', url: a.officialUrl, cls: 'btn-official' },
+].filter((l) => l.url)
+
+// preferredLink を先頭に並べ替える（12,500円超は楽天が既定）
+const preferred = a.preferredLink as string | undefined
+links.sort((x, y) => (x.key === preferred ? -1 : y.key === preferred ? 1 : 0))
+---
+
+<div class="buy">
+  <h4>{name}</h4>
+  <p class="price">
+    実勢価格 {formatPrice(shoe.priceJpy)} 前後{priceNote}
+    {shoe.priceNote && ` ／ ${shoe.priceNote}`}
+  </p>
+  {
+    links.length > 0 && (
+      <div class="buy-btns">
+        {links.map((l) => (
+          <a
+            href={l.url}
+            class={l.cls}
+            rel="sponsored nofollow noopener"
+            target="_blank"
+            data-affiliate="true"
+            data-shoe={shoe.slug}
+            data-merchant={l.key}
+          >
+            {l.label}
+            <Arrow width={22} />
+          </a>
+        ))}
+      </div>
+    )
+  }
+  <p class="micro">
+    {site.affiliateDisclosure}
+    {shoe.isProvided && ' 本品はメーカーからの提供品です。評価基準は購入品と同一です。'}
+  </p>
+</div>
+
+<script>
+  // アフィリンクのクリック計測（記事別の収益性判断に使う・REQUIREMENTS §6）
+  document.addEventListener('click', (event) => {
+    const link = (event.target as HTMLElement)?.closest<HTMLAnchorElement>('[data-affiliate="true"]')
+    if (!link) return
+    ;(window as any).gtag?.('event', 'affiliate_click', {
+      shoe: link.dataset.shoe,
+      merchant: link.dataset.merchant,
+      link_url: link.href,
+      page_path: location.pathname,
+    })
+  })
+</script>

@@ -1,0 +1,32 @@
+---
+import Arrow from '../components/Arrow.astro'
+import BaseLayout from '../layouts/BaseLayout.astro'
+import { getNav, getSiteSettings } from '../lib/queries'
+
+import '../styles/doc.css'
+
+const [site, nav] = await Promise.all([getSiteSettings(), getNav()])
+---
+
+<BaseLayout site={site} nav={nav} title="ページが見つかりません" noindex template="doc">
+  <div class="container">
+    <div class="page-head">
+      <p class="page-en">404</p>
+      <h1>ページが見つかりません</h1>
+      <p class="page-lead">
+        URLが変わったか、削除された可能性があります。下のいずれかからお探しください。
+      </p>
+    </div>
+    <div class="doc doc--narrow">
+      <p>
+        <a href="/" class="link-arrow">トップページへ<Arrow width={22} /></a>
+      </p>
+      <p>
+        <a href="/articles/" class="link-arrow">記事一覧を見る<Arrow width={22} /></a>
+      </p>
+      <p>
+        <a href="/shoes/" class="link-arrow">シューズDBを見る<Arrow width={22} /></a>
+      </p>
+    </div>
+  </div>
+</BaseLayout>

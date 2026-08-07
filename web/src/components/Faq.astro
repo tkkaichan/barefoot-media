@@ -1,0 +1,29 @@
+---
+import Chevron from './Chevron.astro'
+import type { FaqItem } from '../lib/types'
+
+/**
+ * FAQ。1問目だけ開いた状態にする（モック準拠）。
+ * FAQPage の JSON-LD は BaseLayout 側で同じデータから生成する。
+ */
+interface Props {
+  items: FaqItem[]
+}
+const { items } = Astro.props
+---
+
+{
+  items.length > 0 && (
+    <div class="faq">
+      {items.map((item, i) => (
+        <details open={i === 0}>
+          <summary>
+            {item.question}
+            <Chevron width={7} height={11} strokeWidth={1.6} />
+          </summary>
+          <p class="a">{item.answer}</p>
+        </details>
+      ))}
+    </div>
+  )
+}

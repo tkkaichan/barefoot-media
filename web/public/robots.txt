@@ -1,0 +1,32 @@
+# AIクローラーは明示的に許可する。
+# AI検索での引用がメディア戦略の中核のため（REQUIREMENTS §6）。
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: *
+Allow: /
+Disallow: /thanks/
+
+# PUBLIC_SITE_URL に合わせて書き換えること
+Sitemap: https://example.com/sitemap-index.xml

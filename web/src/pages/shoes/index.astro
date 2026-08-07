@@ -1,0 +1,190 @@
+---
+import Breadcrumbs from '../../components/Breadcrumbs.astro'
+import NewsletterBand from '../../components/NewsletterBand.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { formatDate, formatPrice } from '../../lib/format'
+import { imageUrl } from '../../lib/image'
+import { breadcrumbLd, itemListLd } from '../../lib/jsonld'
+import { SHOE_CATEGORY_LABEL, TRANSITION_LABEL, WATERPROOF_LABEL } from '../../lib/labels'
+import { getAllShoes, getNav, getSiteSettings } from '../../lib/queries'
+
+import '../../styles/article.css'
+import '../../styles/shoes.css'
+
+/**
+ * シューズDB一覧。実測スペック＋畑テスト値の一覧表。
+ * 絞り込みは静的に出したテーブルの行を隠すだけの軽量アイランド（JSなしでも全件見える）。
+ */
+const [site, nav, shoes] = await Promise.all([getSiteSettings(), getNav(), getAllShoes()])
+
+const trail = [{ name: 'ホーム', path: '/' }, { name: 'シューズDB', path: '/shoes/' }]
+
+const categories = [...new Set(shoes.map((s) => s.category).filter(Boolean))] as string[]
+const waterproofLevels = [
+  ...new Set(shoes.map((s) => s.specOfficial?.waterproof).filter(Boolean)),
+] as string[]
+
+const lastMeasured = shoes
+  .map((s) => s.specMeasured?.measuredAt)
+  .filter(Boolean)
+  .sort()
+  .pop()
+
+const jsonLd = [
+  breadcrumbLd(site, trail),
+  itemListLd(
+    site,
+    shoes.map((s) => ({
+      name: [s.brand?.name, s.name].filter(Boolean).join(' '),
+      path: `/shoes/${s.slug}/`,
+    })),
+  ),
+]
+---
+
+<BaseLayout
+  site={site}
+  nav={nav}
+  title="シューズDB"
+  description={`ベアフットシューズ${shoes.length}モデルの実測スペックと畑テスト値の一覧。重量・ソール厚・トゥボックス幅・浸水時間はすべて自前の実測値です。`}
+  jsonLd={jsonLd}
+>
+  <div class="container">
+    <Breadcrumbs trail={trail} />
+    <div class="page-head">
+      <p class="page-en">SHOE DATABASE</p>
+      <h1>シューズDB</h1>
+      <p class="page-lead">
+        {shoes.length}モデルの実測スペックと畑テスト値。公称値ではなく、すべて自分で測った数字です。
+        {lastMeasured && `最終更新: ${formatDate(lastMeasured)}。`}
+      </p>
+    </div>
+
+    <div class="filters" data-shoe-filters>
+      <div class="filter-group">
+        <span class="filter-label">CATEGORY</span>
+        <button type="button" data-filter="category" data-value="" aria-pressed="true">すべて</button>
+        {
+          categories.map((c) => (
+            <button type="button" data-filter="category" data-value={c} aria-pressed="false">
+              {SHOE_CATEGORY_LABEL[c] ?? c}
+            </button>
+          ))
+        }
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">WATERPROOF</span>
+        <button type="button" data-filter="waterproof" data-value="" aria-pressed="true">すべて</button>
+        {
+          waterproofLevels.map((w) => (
+            <button type="button" data-filter="waterproof" data-value={w} aria-pressed="false">
+              {WATERPROOF_LABEL[w] ?? w}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+    <p class="filter-count" data-filter-count>{shoes.length}モデルを表示中</p>
+
+    <div class="table-scroll">
+      <table class="spec">
+        <caption>実測スペックと畑テスト値の一覧（数値はすべて自前の実測）</caption>
+        <thead>
+          <tr>
+            <th scope="col">モデル</th>
+            <th scope="col">価格</th>
+            <th scope="col">実測重量</th>
+            <th scope="col">ソール厚</th>
+            <th scope="col">ドロップ</th>
+            <th scope="col">トゥボックス幅</th>
+            <th scope="col">防水</th>
+            <th scope="col">雨天グリップ</th>
+            <th scope="col">浸水時間</th>
+            <th scope="col">慣らし難易度</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            shoes.map((s) => (
+              <tr data-category={s.category} data-waterproof={s.specOfficial?.waterproof ?? ''}>
+                <th scope="row">
+                  <span class="shoe-row-name">
+                    {s.imageMain && (
+                      <img
+                        src={imageUrl(s.imageMain, 96, 96)}
+                        width="48"
+                        height="48"
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )}
+                    <span>
+                      <span class="brand">{s.brand?.name}</span>
+                      <a href={`/shoes/${s.slug}/`}>{s.nameJa || s.name}</a>
+                    </span>
+                  </span>
+                </th>
+                <td>{formatPrice(s.priceJpy)}</td>
+                <td>{typeof s.specMeasured?.weightG === 'number' ? `${s.specMeasured.weightG}g` : '—'}</td>
+                <td>
+                  {typeof s.specMeasured?.soleThicknessMm === 'number'
+                    ? `${s.specMeasured.soleThicknessMm}mm`
+                    : '—'}
+                </td>
+                <td>{typeof s.specMeasured?.dropMm === 'number' ? `${s.specMeasured.dropMm}mm` : '—'}</td>
+                <td>
+                  {typeof s.specMeasured?.toeboxWidthMm === 'number'
+                    ? `${s.specMeasured.toeboxWidthMm}mm`
+                    : '—'}
+                </td>
+                <td>{s.specOfficial?.waterproof ? WATERPROOF_LABEL[s.specOfficial.waterproof] : '—'}</td>
+                <td>{typeof s.fieldTest?.wetGripScore === 'number' ? `${s.fieldTest.wetGripScore} / 5` : '—'}</td>
+                <td>
+                  {typeof s.fieldTest?.waterIntrusionMin === 'number'
+                    ? `${s.fieldTest.waterIntrusionMin}分`
+                    : '—'}
+                </td>
+                <td>{s.transitionDifficulty ? TRANSITION_LABEL[s.transitionDifficulty] : '—'}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    {shoes.length === 0 && <p class="cards-empty">公開済みのモデルはまだありません。</p>}
+  </div>
+
+  <NewsletterBand slot="after-main" site={site} source="shoes-band" />
+</BaseLayout>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-shoe-filters]')
+  const rows = Array.from(document.querySelectorAll<HTMLTableRowElement>('tbody tr[data-category]'))
+  const count = document.querySelector<HTMLElement>('[data-filter-count]')
+  const state: Record<string, string> = { category: '', waterproof: '' }
+
+  function apply() {
+    let visible = 0
+    rows.forEach((row) => {
+      const ok =
+        (!state.category || row.dataset.category === state.category) &&
+        (!state.waterproof || row.dataset.waterproof === state.waterproof)
+      row.hidden = !ok
+      if (ok) visible += 1
+    })
+    if (count) count.textContent = `${visible}モデルを表示中`
+  }
+
+  root?.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('button[data-filter]')
+    if (!button) return
+    const group = button.dataset.filter!
+    state[group] = button.dataset.value ?? ''
+    root
+      .querySelectorAll<HTMLButtonElement>(`button[data-filter="${group}"]`)
+      .forEach((b) => b.setAttribute('aria-pressed', String(b === button)))
+    apply()
+  })
+</script>

@@ -1,0 +1,122 @@
+---
+import { formatPrice } from '../../lib/format'
+import {
+  COLUMN_LABEL,
+  SCENE_FIT_LABEL,
+  SCENE_FIT_SYMBOL,
+  SCENE_LABEL,
+  TRANSITION_LABEL,
+  WATERPROOF_LABEL,
+} from '../../lib/labels'
+import type { ShoeSummary } from '../../lib/types'
+
+/**
+ * 比較表（H1）とシーン別マトリクス（H3）。値はすべてシューズDBから引く。
+ * ◎○△× は記号だけに頼らず、セルに文字ラベルも入れる（a11y）。
+ */
+interface Props {
+  shoes: ShoeSummary[]
+  columns?: string[]
+  caption: string
+  layout?: 'spec' | 'sceneMatrix'
+}
+const { shoes, columns = [], caption, layout = 'spec' } = Astro.props
+
+function cell(shoe: ShoeSummary, key: string): string {
+  const m = shoe.specMeasured ?? {}
+  const f = shoe.fieldTest ?? {}
+  switch (key) {
+    case 'priceJpy':
+      return formatPrice(shoe.priceJpy)
+    case 'weightG':
+      return typeof m.weightG === 'number' ? `${m.weightG}g` : '—'
+    case 'soleThicknessMm':
+      return typeof m.soleThicknessMm === 'number' ? `${m.soleThicknessMm}mm` : '—'
+    case 'dropMm':
+      return typeof m.dropMm === 'number' ? `${m.dropMm}mm` : '—'
+    case 'toeboxWidthMm':
+      return typeof m.toeboxWidthMm === 'number' ? `${m.toeboxWidthMm}mm` : '—'
+    case 'waterproof':
+      return shoe.specOfficial?.waterproof
+        ? (WATERPROOF_LABEL[shoe.specOfficial.waterproof] ?? '—')
+        : '—'
+    case 'transitionDifficulty':
+      return shoe.transitionDifficulty ? (TRANSITION_LABEL[shoe.transitionDifficulty] ?? '—') : '—'
+    case 'miScore':
+      return typeof shoe.miScore === 'number' ? String(shoe.miScore) : '—'
+    case 'wetGripScore':
+      return typeof f.wetGripScore === 'number' ? `${f.wetGripScore} / 5` : '—'
+    case 'waterIntrusionMin':
+      return typeof f.waterIntrusionMin === 'number' ? `${f.waterIntrusionMin}分` : '—'
+    case 'overall':
+      return typeof shoe.ratings?.overall === 'number' ? `${shoe.ratings.overall} / 5` : '—'
+    default:
+      return '—'
+  }
+}
+
+/** マトリクスに出すシーンは、いずれかのモデルが値を持つものだけに絞る */
+const scenes =
+  layout === 'sceneMatrix'
+    ? Object.keys(SCENE_LABEL).filter((s) =>
+        shoes.some((sh) => sh.sceneMatrix?.some((x) => x.scene === s)),
+      )
+    : []
+---
+
+<div class="table-scroll">
+  <table class="spec">
+    <caption>{caption}</caption>
+    <thead>
+      <tr>
+        <th scope="col">モデル</th>
+        {
+          layout === 'sceneMatrix'
+            ? scenes.map((s) => <th scope="col">{SCENE_LABEL[s]}</th>)
+            : columns.map((c) => (
+                <th scope="col">
+                  {COLUMN_LABEL[c]?.label ?? c}
+                </th>
+              ))
+        }
+      </tr>
+    </thead>
+    <tbody>
+      {
+        shoes.map((shoe) => (
+          <tr>
+            <th scope="row">
+              <a href={`/shoes/${shoe.slug}/`}>
+                {[shoe.brand?.name, shoe.name].filter(Boolean).join(' ')}
+              </a>
+            </th>
+            {layout === 'sceneMatrix'
+              ? scenes.map((s) => {
+                  const fit = shoe.sceneMatrix?.find((x) => x.scene === s)?.fit
+                  return (
+                    <td>
+                      {fit ? (
+                        <>
+                          <span aria-hidden="true">{SCENE_FIT_SYMBOL[fit]}</span>
+                          <span class="fit-label"> {SCENE_FIT_LABEL[fit]}</span>
+                        </>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+                  )
+                })
+              : columns.map((c) => <td>{cell(shoe, c)}</td>)}
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .fit-label {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+  }
+</style>

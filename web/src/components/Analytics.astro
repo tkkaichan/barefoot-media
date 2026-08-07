@@ -1,0 +1,27 @@
+---
+/**
+ * 計測タグ。環境変数が未設定なら何も出力しない（開発・プレビューで汚さないため）。
+ * AI検索経由の流入を見るため、リファラは既定のまま送る。
+ */
+const GA4_ID = import.meta.env.PUBLIC_GA4_ID
+const VERCEL_ANALYTICS = import.meta.env.PUBLIC_ENABLE_VERCEL_ANALYTICS === 'true'
+---
+
+{
+  GA4_ID && (
+    <>
+      <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`} />
+      <script is:inline define:vars={{ GA4_ID }}>
+        window.dataLayer = window.dataLayer || []
+        function gtag() {
+          dataLayer.push(arguments)
+        }
+        window.gtag = gtag
+        gtag('js', new Date())
+        gtag('config', GA4_ID)
+      </script>
+    </>
+  )
+}
+
+{VERCEL_ANALYTICS && <script is:inline defer src="/_vercel/insights/script.js" />}

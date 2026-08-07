@@ -1,0 +1,103 @@
+---
+import type { GetStaticPaths } from 'astro'
+import ArticleCard from '../../components/ArticleCard.astro'
+import Breadcrumbs from '../../components/Breadcrumbs.astro'
+import NewsletterBand from '../../components/NewsletterBand.astro'
+import Sidebar from '../../components/Sidebar.astro'
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { altText, imageUrl, srcSet } from '../../lib/image'
+import { pad2 } from '../../lib/format'
+import { breadcrumbLd, itemListLd } from '../../lib/jsonld'
+import {
+  getHomepage,
+  getNav,
+  getPostsBySeries,
+  getSeries,
+  getSeriesSlugs,
+  getSiteSettings,
+} from '../../lib/queries'
+
+import '../../styles/doc.css'
+
+/** 連載トップ。全面写真ヒーローが許可されている数少ないページのひとつ。 */
+export const getStaticPaths: GetStaticPaths = async () => {
+  const slugs = await getSeriesSlugs()
+  return slugs.map((slug) => ({ params: { slug } }))
+}
+
+const { slug } = Astro.params
+const [site, nav, homepage, series, posts] = await Promise.all([
+  getSiteSettings(),
+  getNav(),
+  getHomepage(),
+  getSeries(String(slug)),
+  getPostsBySeries(String(slug)),
+])
+
+if (!series) throw new Error(`連載が見つかりません: ${slug}`)
+
+const trail = [
+  { name: 'ホーム', path: '/' },
+  { name: series.title, path: `/series/${series.slug}/` },
+]
+
+const jsonLd = [
+  breadcrumbLd(site, trail),
+  itemListLd(
+    site,
+    posts.map((p) => ({ name: p.title, path: `/articles/${p.slug}/` })),
+  ),
+]
+---
+
+<BaseLayout
+  site={site}
+  nav={nav}
+  title={series.title}
+  description={series.description || `連載「${series.title}」の記事一覧。`}
+  jsonLd={jsonLd}
+>
+  {
+    series.heroImage && (
+      <div class="full-hero">
+        <img
+          src={imageUrl(series.heroImage as any, 1600, 800)}
+          srcset={srcSet(series.heroImage as any, [960, 1600, 2000], 2)}
+          sizes="100vw"
+          alt={altText(series.heroImage as any, `連載「${series.title}」`)}
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+    )
+  }
+
+  <div class="container">
+    <Breadcrumbs trail={trail} />
+    <div class="page-head">
+      <p class="page-en">SERIES {pad2(series.number)}</p>
+      <h1>{series.title}</h1>
+      {series.description && <p class="page-lead">{series.description}</p>}
+    </div>
+
+    <div class="body-grid">
+      <div>
+        {
+          posts.length > 0 ? (
+            <div class="cards">
+              {posts.map((post) => (
+                <ArticleCard post={post} />
+              ))}
+            </div>
+          ) : (
+            <p class="cards-empty">この連載の記事はまだありません。</p>
+          )
+        }
+      </div>
+      <Sidebar site={site} nav={nav} homepage={homepage} />
+    </div>
+  </div>
+
+  <NewsletterBand slot="after-main" site={site} source="series-band" />
+</BaseLayout>

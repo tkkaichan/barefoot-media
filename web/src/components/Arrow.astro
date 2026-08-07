@@ -1,0 +1,26 @@
+---
+/**
+ * サイト唯一の矢印。細いロングアロー（軸長め・鏃小さめ、stroke 1.4）。
+ * 文字矢印「→」「›」は使わない（design-brief 7・10節）。
+ * width はモックで使われている 20 / 22 / 26 のいずれか。軸と鏃は width から計算する。
+ */
+interface Props {
+  width?: 20 | 22 | 26
+  class?: string
+}
+const { width = 26, class: className } = Astro.props
+const shaft = width - 2
+const headX = width - 6
+---
+
+<svg
+  width={width}
+  height="10"
+  viewBox="0 0 26 10"
+  fill="none"
+  aria-hidden="true"
+  focusable="false"
+  class={className}
+>
+  <path d={`M0 5h${shaft}M${headX} 1l4 4-4 4`} stroke="currentColor" stroke-width="1.4" />
+</svg>
