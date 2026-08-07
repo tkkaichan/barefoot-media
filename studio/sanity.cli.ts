@@ -7,5 +7,8 @@ export default defineCliConfig({
   },
   /** Studio を Sanity のホスティングに deploy するときのサブドメイン */
   studioHost: process.env.SANITY_STUDIO_HOST,
-  autoUpdates: true,
+  deployment: {
+    appId: 'ypway7jsreypm1cgl67le0e1',
+    autoUpdates: true,
+  },
 })

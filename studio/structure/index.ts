@@ -5,9 +5,11 @@ const SINGLETONS = ['siteSettings', 'homepage']
 
 export const structure: StructureResolver = (S) =>
   S.list()
+    .id('root')
     .title('コンテンツ')
     .items([
       S.listItem()
+        .id('posts')
         .title('記事')
         .child(
           S.documentTypeList('post')
@@ -18,52 +20,77 @@ export const structure: StructureResolver = (S) =>
       S.divider(),
 
       S.listItem()
+        .id('shoeDb')
         .title('シューズDB')
         .child(
           S.list()
+            .id('shoeDb')
             .title('シューズDB')
             .items([
               S.listItem()
+                .id('shoesAll')
                 .title('モデル（すべて）')
                 .child(S.documentTypeList('shoe').title('モデル')),
               S.listItem()
+                .id('shoesTesting')
                 .title('テスト中')
                 .child(
                   S.documentList()
+                    .id('shoesTestingList')
                     .title('テスト中')
                     .filter('_type == "shoe" && status == "testing"'),
                 ),
               S.listItem()
+                .id('shoesPublished')
                 .title('公開済み')
                 .child(
                   S.documentList()
+                    .id('shoesPublishedList')
                     .title('公開済み')
                     .filter('_type == "shoe" && status == "published"'),
                 ),
-              S.listItem().title('ブランド').child(S.documentTypeList('brand').title('ブランド')),
+              S.listItem()
+                .id('brands')
+                .title('ブランド')
+                .child(S.documentTypeList('brand').title('ブランド')),
             ]),
         ),
 
       S.divider(),
 
-      S.listItem().title('ハブ（大カテゴリ）').child(S.documentTypeList('category').title('ハブ')),
-      S.listItem().title('トピック').child(S.documentTypeList('topic').title('トピック')),
-      S.listItem().title('連載').child(S.documentTypeList('series').title('連載')),
-      S.listItem().title('著者・監修者').child(S.documentTypeList('author').title('著者・監修者')),
-
-      S.divider(),
-
-      S.listItem().title('固定ページ').child(S.documentTypeList('page').title('固定ページ')),
+      S.listItem()
+        .id('categories')
+        .title('ハブ（大カテゴリ）')
+        .child(S.documentTypeList('category').title('ハブ')),
+      S.listItem()
+        .id('topics')
+        .title('トピック')
+        .child(S.documentTypeList('topic').title('トピック')),
+      S.listItem()
+        .id('series')
+        .title('連載')
+        .child(S.documentTypeList('series').title('連載')),
+      S.listItem()
+        .id('authors')
+        .title('著者・監修者')
+        .child(S.documentTypeList('author').title('著者・監修者')),
 
       S.divider(),
 
       S.listItem()
-        .title('トップページ')
+        .id('pages')
+        .title('固定ページ')
+        .child(S.documentTypeList('page').title('固定ページ')),
+
+      S.divider(),
+
+      S.listItem()
         .id('homepage')
+        .title('トップページ')
         .child(S.document().schemaType('homepage').documentId('homepage')),
       S.listItem()
-        .title('サイト設定')
         .id('siteSettings')
+        .title('サイト設定')
         .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
     ])
 
