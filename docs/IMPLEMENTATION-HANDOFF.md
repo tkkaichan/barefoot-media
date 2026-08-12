@@ -19,6 +19,10 @@ docs/design-brief.md と docs/DESIGN.md は「モックが存在しない画面�
 
 注: **固定ページ（privacy / company / contact）にパンくずは付けない**（運営者決定・モックからも削除済み）。パンくず＋BreadcrumbListスキーマは記事ページ・カテゴリページのみ。
 
+注: **サイドバーの並び順を 2026-08-08 に変更**（モック plan-c2-portal-hero.html 更新済み）。上から メール登録 → 著者ボックス →「まずこの3本から」→ カテゴリ。著者ボックスの中身・体裁は変更なし。理由は DESIGN.md の Layout 節。
+
+注: **運営者名義は個人（近藤 泰樹）で確定**（2026-08-08）。フッターの著作権表記・運営者情報ページ・アフィリエイト表記はすべて個人名義で組む。SSC（スマートスタイル・コンプレックス株式会社）の社名はサイト上に出さない。
+
 旧案（plan-a / plan-b / plan-c 無印）は design-mockups/_archive/ に退避済み。検討過程の資料であり実装対象外。
 
 ## 移植の手順
@@ -45,3 +49,4 @@ docs/design-brief.md と docs/DESIGN.md は「モックが存在しない画面�
 
 docs/REQUIREMENTS.md が正（Astro + Sanity + Vercel、シューズDBスキーマ、構造化データJSON-LD要件、メールリスト基盤）。
 記事テンプレートには Article + FAQPage + Product/Review + BreadcrumbList のJSON-LDを実装すること（llmo-audit.md の要件準拠）。
+加えて **記事末の著者ボックスに `Person` を紐づけ、Article の `author` から参照する**こと（`@id` で著者ページを指し、`sameAs` に外部プロフィールを列挙）。AI検索が「ベアフットシューズについて語る人物」としてエンティティ認識する起点になる。サイドバーの著者ボックスには構造化データを付けない（全ページ重複になるため）。

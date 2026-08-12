@@ -131,8 +131,6 @@ const jsonLd = [
           </div>
         </div>
 
-        {article.leadDefinition && <p class="lead">{article.leadDefinition}</p>}
-
         {
           article.mainImage && (
             <>
@@ -162,6 +160,8 @@ const jsonLd = [
             </>
           )
         }
+
+        {article.leadDefinition && <p class="lead">{article.leadDefinition}</p>}
 
         <PortableText value={article.body} site={site} leadMagnet={article.leadMagnet ?? 'LM1'} />
 
