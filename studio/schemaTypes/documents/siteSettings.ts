@@ -100,7 +100,6 @@ export const siteSettings = defineType({
       ],
       initialValue: [
         { label: '運営者情報', href: '/about/' },
-        { label: 'テストポリシー', href: '/test-policy/' },
         { label: 'プライバシーポリシー', href: '/privacy/' },
         { label: 'お問い合わせ', href: '/contact/' },
       ],

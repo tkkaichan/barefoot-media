@@ -1,8 +1,7 @@
 ---
-import Arrow from '../components/Arrow.astro'
 import PortableText from '../components/portable/PortableText.astro'
 import BaseLayout from './BaseLayout.astro'
-import { altText, imageUrl, srcSet } from '../lib/image'
+import { altText, imageUrl } from '../lib/image'
 import { webPageLd } from '../lib/jsonld'
 import type { NavData, PageDoc, SiteSettings } from '../lib/types'
 
@@ -34,22 +33,6 @@ const author = site.primaryAuthor
   template="doc"
   jsonLd={[webPageLd(site, page)]}
 >
-  {
-    page.template === 'testPolicy' && page.heroImage && (
-      <div class="full-hero">
-        <img
-          src={imageUrl(page.heroImage, 1600, 800)}
-          srcset={srcSet(page.heroImage, [960, 1600, 2000], 2)}
-          sizes="100vw"
-          alt={altText(page.heroImage, page.title)}
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-        />
-      </div>
-    )
-  }
-
   <div class="container">
     <div class="page-head">
       <p class="page-en">{page.labelEn}</p>
@@ -78,10 +61,6 @@ const author = site.primaryAuthor
               <p class="en">AUTHOR / EDITOR</p>
               <h2>{author.name}</h2>
               <p>{author.bio}</p>
-              <a href="/test-policy/" class="policy-link">
-                テストの方針を読む
-                <Arrow width={22} />
-              </a>
             </div>
           </div>
         )

@@ -263,7 +263,6 @@ export const getPage = (slug: string) =>
       template,
       lead,
       effectiveNote,
-      heroImage${IMAGE},
       leadMagnet,
       updatedAt,
       seo{metaDescription, ogImage${IMAGE}, canonicalUrl, noindex},

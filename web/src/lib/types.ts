@@ -126,10 +126,9 @@ export type PageDoc = {
   title: string
   slug: string
   labelEn: string
-  template: 'doc' | 'about' | 'testPolicy' | 'lp'
+  template: 'doc' | 'about' | 'lp'
   lead?: string
   effectiveNote?: string
-  heroImage?: ImageWithMeta
   leadMagnet?: string
   body: PortableTextNode[]
   updatedAt?: string

@@ -1,5 +1,4 @@
 ---
-import Arrow from './Arrow.astro'
 import NewsletterForm from './NewsletterForm.astro'
 import { altText, imageUrl } from '../lib/image'
 import type { Homepage, NavData, PostCard, SiteSettings } from '../lib/types'
@@ -41,10 +40,6 @@ const startLabelEn = homepage?.startHereLabelEn ?? 'START HERE'
           </div>
           <h5>{author.name}</h5>
           <p>{author.bio}</p>
-          <a href="/test-policy/" class="author-link">
-            テストの方針を読む
-            <Arrow width={20} />
-          </a>
         </div>
       </div>
     )

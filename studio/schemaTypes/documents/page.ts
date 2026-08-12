@@ -1,7 +1,7 @@
 import { defineField, defineType } from 'sanity'
 
 /**
- * 固定ページ（プライバシー・免責・運営者情報・テストポリシー・LP・完了ページ）。
+ * 固定ページ（プライバシー・免責・運営者情報・LP・完了ページ）。
  * モックの page-privacy / page-company の型（番号付き明朝見出し＋上罫線）で描画する。
  * ※固定ページにパンくずは付けない（IMPLEMENTATION-HANDOFF）。
  */
@@ -22,7 +22,7 @@ export const page = defineType({
       type: 'slug',
       options: { maxLength: 80 },
       description:
-        'URL: /<slug>/。既定のルーティング: privacy / disclaimer / about / test-policy / thanks / lp/transition-30days / lp/toe-training',
+        'URL: /<slug>/。既定のルーティング: privacy / disclaimer / about / thanks / lp/transition-30days / lp/toe-training',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -40,7 +40,6 @@ export const page = defineType({
         list: [
           { title: '標準（番号付き見出しの1カラム）', value: 'doc' },
           { title: '運営者情報（プロフィールカード付き）', value: 'about' },
-          { title: 'テストポリシー（全面写真ヒーロー可）', value: 'testPolicy' },
           { title: 'リードマグネットLP', value: 'lp' },
         ],
       },
@@ -59,17 +58,6 @@ export const page = defineType({
       title: '制定日・改定日の表記',
       type: 'string',
       description: '例: 制定日: 2026.09.01 ／ 最終改定: 2026.09.01（ポリシー系のみ）',
-    }),
-    defineField({
-      name: 'heroImage',
-      title: '全面写真ヒーロー',
-      type: 'image',
-      options: { hotspot: true },
-      description: 'テストポリシーのみ使用可。他のページでは無視される',
-      hidden: ({ parent }) => parent?.template !== 'testPolicy',
-      fields: [
-        defineField({ name: 'alt', title: '代替テキスト', type: 'string' }),
-      ],
     }),
     defineField({
       name: 'leadMagnet',

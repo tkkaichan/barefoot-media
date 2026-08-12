@@ -136,23 +136,7 @@ body[data-template='doc'] {
   margin-top: 12px;
 }
 
-.policy-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: var(--accent);
-  font-weight: 500;
-  font-size: 14px;
-  margin-top: 16px;
-}
-.policy-link svg {
-  transition: transform 0.2s ease-out;
-}
-.policy-link:hover svg {
-  transform: translateX(4px);
-}
-
-/* テストポリシーの全面写真ヒーロー（このページと連載トップのみ許可） */
+/* 連載トップの全面写真ヒーロー */
 .full-hero {
   position: relative;
   height: min(56vh, 460px);

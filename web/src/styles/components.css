@@ -277,21 +277,6 @@ aside.sidebar {
   margin-top: 8px;
   line-height: 1.8;
 }
-.author-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12.5px;
-  font-weight: 500;
-  color: var(--accent);
-  margin-top: 14px;
-}
-.author-link svg {
-  transition: transform 0.2s ease-out;
-}
-.author-link:hover svg {
-  transform: translateX(4px);
-}
 .rank {
   list-style: none;
 }

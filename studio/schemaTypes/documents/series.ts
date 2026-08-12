@@ -55,7 +55,7 @@ export const series = defineType({
       title: '連載トップの全面写真',
       type: 'image',
       options: { hotspot: true },
-      description: '全面写真ヒーローが許可されているのは連載トップとテストポリシーのみ',
+      description: '全面写真ヒーローが許可されているのは連載トップのみ',
       fields: [
         defineField({ name: 'alt', title: '代替テキスト', type: 'string' }),
       ],

@@ -5,7 +5,7 @@ import DocLayout from '../layouts/DocLayout.astro'
 import { getNav, getPage, getPageRefs, getSiteSettings } from '../lib/queries'
 
 /**
- * root 直下の固定ページ: /privacy/ /disclaimer/ /about/ /test-policy/ /thanks/ など。
+ * root 直下の固定ページ: /privacy/ /disclaimer/ /about/ /thanks/ など。
  * LP（template: 'lp'）は /lp/[slug]/、お問い合わせは /contact/ が専用で受け持つので除外する。
  */
 export const getStaticPaths: GetStaticPaths = async () => {

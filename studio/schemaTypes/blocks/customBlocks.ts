@@ -76,7 +76,7 @@ export const testConditionBlock = defineType({
   name: 'testConditionBlock',
   title: 'テスト条件（R2）',
   type: 'object',
-  description: 'テスト条件を明示する枠。テストポリシーページへのリンクが自動で付く',
+  description: 'テスト条件を明示する枠',
   fields: [
     defineField({
       name: 'shoe',

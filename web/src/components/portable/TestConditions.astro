@@ -4,7 +4,6 @@ import type { ShoeSummary } from '../../lib/types'
 /**
  * テスト条件ストリップ（R2）。記事冒頭の4項目。
  * モデル指定があれば畑テスト値をDBから出し、無ければ手入力項目を出す。
- * どちらの場合もテストポリシーへのリンクを必ず付ける。
  */
 interface Props {
   shoe?: ShoeSummary
@@ -28,16 +27,13 @@ const rows = manual.length > 0 ? manual : fromDb
 
 {
   rows.length > 0 && (
-    <>
-      <dl class="test-cond">
-        {rows.map((r) => (
-          <div class="tc">
-            <dt>{r.label}</dt>
-            <dd>{r.value}</dd>
-          </div>
-        ))}
-      </dl>
-      <a class="test-cond-link" href="/test-policy/">計測方法とテスト基準を見る</a>
-    </>
+    <dl class="test-cond">
+      {rows.map((r) => (
+        <div class="tc">
+          <dt>{r.label}</dt>
+          <dd>{r.value}</dd>
+        </div>
+      ))}
+    </dl>
   )
 }
