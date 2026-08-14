@@ -1,82 +1,131 @@
 /*
  * トップページ・一覧ページの構成要素。
- * 値はすべて plan-c2-portal-hero.html からの移植。
+ * 値はすべて plan-c3-portal-typo.html からの移植。
  */
 
-/* ---- hero ---- */
+/* ---- hero（タイポ主体・写真なし） ---- */
 .hero {
+  position: relative;
   border-bottom: 1px solid var(--line);
-  padding: 68px 0;
+  padding: 96px 0 72px;
+  overflow: hidden;
 }
-.hero-grid {
-  display: grid;
-  grid-template-columns: 7fr 5fr;
-  gap: 60px;
-  align-items: center;
+/* 右端の縦書きmonoラベル。960px以下では非表示 */
+.hero-side {
+  position: absolute;
+  top: 88px;
+  right: max(var(--container-pad), calc((100% - var(--container)) / 2 + var(--container-pad)));
+  writing-mode: vertical-rl;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.3em;
+  color: var(--ink-soft);
 }
 .eyebrow {
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.26em;
   color: var(--accent);
   text-transform: uppercase;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
 }
 .hero h1 {
   font-family: var(--serif);
   font-weight: 600;
-  font-size: clamp(30px, 4vw, 46px);
-  line-height: 1.5;
-  letter-spacing: 0.02em;
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1.42;
+  letter-spacing: 0.03em;
   text-wrap: balance;
 }
+/* 見出し2行目以降の字下げ */
+.hero h1 .indent {
+  display: inline-block;
+  padding-left: 1.5em;
+}
+.hero-foot {
+  display: flex;
+  align-items: flex-end;
+  gap: 48px;
+  margin-top: 40px;
+}
 .hero-lead {
-  margin-top: 22px;
   font-size: 15px;
   color: var(--ink-soft);
-  max-width: 33em;
+  max-width: 31em;
 }
-.hero-actions {
-  margin-top: 30px;
-  display: flex;
-  align-items: center;
-  gap: 26px;
-  flex-wrap: wrap;
-}
-.hero-photo {
-  aspect-ratio: 4 / 3;
-  border-radius: var(--radius);
-  position: relative;
-  overflow: hidden;
+
+/* ---- 写真マーキー帯（ヒーロー直下） ---- */
+.marquee {
+  border-bottom: 1px solid var(--line);
   background: var(--bg-soft);
+  overflow: hidden;
 }
-.hero-photo img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+.marquee-track {
+  display: flex;
+  gap: 12px;
+  width: max-content;
+  animation: marquee 36s linear infinite;
+  padding: 12px 0;
+}
+.marquee img {
+  height: 220px;
+  width: 300px;
   object-fit: cover;
   display: block;
+  border-radius: var(--radius);
+  background: var(--bg-soft);
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* base.css の一括停止（animation-iteration-count:1）で終端に飛ぶのを防ぐ */
+  .marquee-track {
+    animation: none !important;
+    transform: none !important;
+  }
 }
 
 /* ---- セクション見出し（上罫線＋mono英字ラベル） ---- */
+.sec {
+  position: relative;
+}
+/* 見出し左上の透かし英字。PICKUP / LATEST のみ */
+.sec-ghost {
+  position: absolute;
+  top: -38px;
+  left: -4px;
+  font-family: var(--mono);
+  font-size: 88px;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--ink) 6%, transparent);
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
 .sec-head {
   display: flex;
   align-items: baseline;
-  gap: 14px;
+  gap: 16px;
   border-top: 1px solid var(--ink);
-  padding-top: 16px;
-  margin-bottom: 28px;
+  padding-top: 18px;
+  margin-bottom: 32px;
+  position: relative;
 }
 .sec-en {
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   color: var(--accent);
 }
 .sec-head h2 {
   font-family: var(--serif);
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 600;
 }
 .sec-head .sec-more {
@@ -97,12 +146,12 @@
 
 /* ---- pickup ---- */
 .pickup {
-  padding: 52px 0 8px;
+  padding: 72px 0 24px;
 }
 .pickup-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 32px;
+  gap: 48px;
 }
 .pk {
   display: block;
@@ -125,7 +174,8 @@
   transition: transform 0.5s ease-out;
 }
 .pk:hover .fill,
-.card:hover .fill {
+.card:hover .fill,
+.row:hover .fill {
   transform: scale(1.03);
 }
 .cat {
@@ -134,16 +184,28 @@
   letter-spacing: 0.14em;
   color: var(--accent);
 }
-.pk .cat {
-  margin-top: 16px;
-  display: block;
+/* カテゴリと日付を1行に並べる（PICKUP・新着リスト行） */
+.meta-line {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-top: 20px;
+}
+.meta-line .cat {
+  letter-spacing: 0.16em;
+}
+.meta-line .date {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--ink-soft);
 }
 .pk h3 {
   font-family: var(--serif);
-  font-size: 21px;
+  font-size: 23px;
   font-weight: 600;
-  line-height: 1.6;
-  margin-top: 6px;
+  line-height: 1.65;
+  margin-top: 10px;
+  text-wrap: balance;
 }
 .meta {
   font-size: 11.5px;
@@ -156,8 +218,8 @@
 .body-grid {
   display: grid;
   grid-template-columns: 1fr var(--sidebar);
-  gap: 56px;
-  padding: 56px 0 72px;
+  gap: 64px;
+  padding: 64px 0 80px;
 }
 
 /* ---- 記事カードグリッド ---- */
@@ -190,6 +252,37 @@
   font-size: 14px;
   color: var(--ink-soft);
   padding: 32px 0;
+}
+
+/* ---- 新着記事のリスト行（トップのみ。一覧ページは .cards のまま） ---- */
+.row {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 28px;
+  align-items: center;
+  padding: 26px 0;
+  border-bottom: 1px solid var(--line);
+}
+.row-photo {
+  aspect-ratio: 16 / 10;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--bg-soft);
+}
+.row h3 {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.7;
+  margin-top: 8px;
+}
+.row .meta-line {
+  margin-top: 0;
+}
+/* 一覧へのロングアロー・リンク（ページネーションの代わり） */
+.list-more {
+  color: var(--accent);
+  margin-top: 32px;
 }
 
 /* ---- ページネーション ---- */
@@ -228,7 +321,7 @@
 aside.sidebar {
   display: flex;
   flex-direction: column;
-  gap: 44px;
+  gap: 48px;
 }
 .side-head {
   display: flex;
@@ -240,6 +333,7 @@ aside.sidebar {
 }
 .side-head .sec-en {
   font-size: 10px;
+  letter-spacing: 0.18em;
 }
 .side-head h4 {
   font-family: var(--serif);
@@ -250,7 +344,7 @@ aside.sidebar {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 24px;
+  padding: 26px;
 }
 .author-photo {
   width: 76px;
@@ -328,11 +422,18 @@ aside.sidebar {
   background: var(--accent-deep);
   color: var(--inverted-fg);
   border-radius: var(--radius);
-  padding: 26px 24px;
+  padding: 28px 26px;
+}
+.side-news .kicker {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: color-mix(in srgb, #fff 55%, var(--accent-deep));
+  margin-bottom: 12px;
 }
 .side-news h5 {
   font-family: var(--serif);
-  font-size: 16.5px;
+  font-size: 17px;
   font-weight: 600;
   color: #fff;
   line-height: 1.7;
@@ -535,17 +636,37 @@ aside.sidebar {
 
 @media (max-width: 960px) {
   .hero {
-    padding: 44px 0;
+    padding: 64px 0 48px;
   }
-  .hero-grid,
+  .hero-side {
+    display: none;
+  }
+  .hero-foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    margin-top: 28px;
+  }
+  .marquee img {
+    height: 140px;
+    width: 190px;
+  }
+  .sec-ghost {
+    font-size: 56px;
+    top: -24px;
+  }
   .pickup-grid,
   .cards,
   .series-grid,
   .body-grid {
     grid-template-columns: 1fr;
   }
-  .hero-grid {
-    gap: 32px;
+  .row {
+    grid-template-columns: 120px 1fr;
+    gap: 16px;
+  }
+  .row h3 {
+    font-size: 15.5px;
   }
   .body-grid {
     gap: 56px;

@@ -109,7 +109,7 @@ header.site-header {
   display: flex;
   align-items: center;
   height: var(--header-h);
-  gap: 32px;
+  gap: 36px;
 }
 .logo {
   font-family: var(--serif);
@@ -129,8 +129,8 @@ header.site-header {
 }
 .nav-links {
   display: flex;
-  gap: 26px;
-  font-size: 13.5px;
+  gap: 28px;
+  font-size: 13px;
   font-weight: 500;
 }
 .nav-links a {
@@ -155,28 +155,25 @@ header.site-header {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
 }
-.search {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--line);
-  padding: 7px 14px;
-  border-radius: var(--radius);
-  font-size: 12.5px;
-  color: var(--ink-soft);
-  background: var(--surface);
+/* 検索は枠付きボックスをやめてアイコンボタン1個に（plan-c3） */
+.search-btn {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  color: var(--ink);
 }
-.search:hover {
-  border-color: var(--ink);
+.search-btn:hover {
+  color: var(--accent);
 }
 .nav-cta {
   font-size: 12.5px;
   font-weight: 700;
   color: #fff;
   background: var(--accent);
-  padding: 9px 16px;
+  padding: 10px 18px;
   border-radius: var(--radius);
   transition: background 0.15s;
 }
@@ -293,14 +290,15 @@ footer.site-footer {
 .btn-primary {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   background: var(--accent);
   color: #fff;
   font-weight: 700;
   font-size: 14.5px;
-  padding: 14px 24px;
+  padding: 15px 26px;
   border-radius: var(--radius);
   transition: background 0.15s;
+  flex-shrink: 0;
 }
 .btn-primary:hover {
   background: var(--accent-deep);
@@ -316,14 +314,13 @@ footer.site-footer {
 .link-arrow {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-weight: 500;
   font-size: 13.5px;
 }
 
 @media (max-width: 960px) {
-  .nav-links,
-  .search {
+  .nav-links {
     display: none;
   }
   .nav-toggle {

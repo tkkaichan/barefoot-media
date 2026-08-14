@@ -1,15 +1,15 @@
 ---
 import ArticleCard from '../components/ArticleCard.astro'
 import Arrow from '../components/Arrow.astro'
+import Marquee from '../components/Marquee.astro'
 import NewsletterBand from '../components/NewsletterBand.astro'
-import Pagination from '../components/Pagination.astro'
 import SectionHead from '../components/SectionHead.astro'
 import Sidebar from '../components/Sidebar.astro'
 import BaseLayout from '../layouts/BaseLayout.astro'
-import { altText, imageUrl, srcSet } from '../lib/image'
+import { altText, imageUrl } from '../lib/image'
 import { itemListLd } from '../lib/jsonld'
 import { pad2 } from '../lib/format'
-import { HOME_LATEST_COUNT, PAGE_SIZE } from '../lib/config'
+import { HOME_LATEST_COUNT } from '../lib/config'
 import {
   getAllPosts,
   getFallbackPickup,
@@ -34,7 +34,12 @@ const pickup =
 
 const pickupIds = new Set(pickup.map((p) => p._id))
 const latest = allPosts.filter((p) => !pickupIds.has(p._id)).slice(0, HOME_LATEST_COUNT)
-const totalListPages = Math.max(1, Math.ceil(allPosts.length / PAGE_SIZE))
+
+/** 見出しは2行目以降を1.5em字下げする（plan-c3）。改行位置は Sanity の入力どおり。 */
+const headlineHtml = (homepage?.heroHeadline ?? '')
+  .split('\n')
+  .map((line, i) => (i === 0 ? line : `<span class="indent">${line}</span>`))
+  .join('<br>')
 
 const jsonLd = [
   itemListLd(
@@ -48,43 +53,29 @@ const jsonLd = [
   {
     homepage && (
       <div class="hero">
-        <div class="container hero-grid">
-          <div>
-            {homepage.heroEyebrow && <p class="eyebrow">{homepage.heroEyebrow}</p>}
-            <h1 set:html={homepage.heroHeadline.replace(/\n/g, '<br>')} />
+        <p class="hero-side">{homepage.heroSideLabel ?? 'KUMAMOTO — YAMAGA — FIELD TESTED'}</p>
+        <div class="container">
+          {homepage.heroEyebrow && <p class="eyebrow">{homepage.heroEyebrow}</p>}
+          <h1 set:html={headlineHtml} />
+          <div class="hero-foot">
             <p class="hero-lead">{homepage.heroLead}</p>
-            <div class="hero-actions">
-              <a href={homepage.heroCtaHref} class="btn-primary">
-                {homepage.heroCtaLabel}
-                <Arrow width={26} />
-              </a>
-            </div>
-          </div>
-          <div class="hero-photo">
-            {homepage.heroImage && (
-              <img
-                src={imageUrl(homepage.heroImage, 800, 600)}
-                srcset={srcSet(homepage.heroImage, [600, 800, 1200], 4 / 3)}
-                sizes="(max-width: 960px) 100vw, 440px"
-                width="800"
-                height="600"
-                alt={altText(homepage.heroImage, 'トップページのヒーロー写真')}
-                loading="eager"
-                fetchpriority="high"
-                decoding="async"
-              />
-            )}
+            <a href={homepage.heroCtaHref} class="btn-primary">
+              {homepage.heroCtaLabel}
+              <Arrow width={26} />
+            </a>
           </div>
         </div>
       </div>
     )
   }
 
+  <Marquee images={homepage?.marqueeImages ?? []} />
+
   {
     pickup.length > 0 && (
       <div class="pickup">
-        <div class="container">
-          <SectionHead en="PICKUP" title="編集部おすすめ" />
+        <div class="container sec">
+          <SectionHead en="PICKUP" title="編集部おすすめ" ghost />
           <div class="pickup-grid">
             {pickup.map((post, i) => (
               <ArticleCard post={post} variant="pickup" loading={i === 0 ? 'eager' : 'lazy'} />
@@ -96,20 +87,23 @@ const jsonLd = [
   }
 
   <div class="container body-grid">
-    <div>
-      <SectionHead en="LATEST" title="新着記事" moreHref="/articles/" />
+    <div class="sec">
+      <SectionHead en="LATEST" title="新着記事" ghost />
       {
         latest.length > 0 ? (
-          <div class="cards">
-            {latest.map((post) => (
-              <ArticleCard post={post} />
+          <div>
+            {latest.map((post, i) => (
+              <ArticleCard post={post} variant="row" loading={i === 0 ? 'eager' : 'lazy'} />
             ))}
           </div>
         ) : (
           <p class="cards-empty">記事はまだありません。</p>
         )
       }
-      <Pagination current={1} total={totalListPages} basePath="/articles/" />
+      <a href="/articles/" class="link-arrow list-more">
+        記事一覧をすべて見る
+        <Arrow width={26} />
+      </a>
     </div>
 
     <Sidebar site={site} nav={nav} homepage={homepage} />

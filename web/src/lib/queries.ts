@@ -128,7 +128,7 @@ export const getNav = () =>
 export const getHomepage = () =>
   groq<Homepage>(`*[_type == "homepage"][0]{
     ...,
-    heroImage${IMAGE},
+    marqueeImages[]${IMAGE},
     pickupPosts[]->${POST_CARD},
     startHerePosts[]->${POST_CARD}
   }`)

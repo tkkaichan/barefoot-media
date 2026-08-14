@@ -5,7 +5,8 @@ import type { Homepage, NavData, PostCard, SiteSettings } from '../lib/types'
 
 /**
  * 一覧系ページの右サイドバー（320px）。
- * 並びは DESIGN.md 固定: 著者ボックス → まずこの3本から → メール登録（反転）→ カテゴリチップ。
+ * 並びは DESIGN.md 固定: メール登録（反転）→ 著者ボックス → まずこの3本から → カテゴリチップ
+ * （2026-08-08 の運営者決定。最上部＝最も見られる枠をCVに充てる）。
  */
 interface Props {
   site: SiteSettings
@@ -22,6 +23,14 @@ const startLabelEn = homepage?.startHereLabelEn ?? 'START HERE'
 ---
 
 <aside class="sidebar">
+  <div class="side-news">
+    <p class="kicker">NEWSLETTER</p>
+    <h5>{site.newsletterSidebarHeadline ?? '移行30日カレンダー（PDF）を無料配布中'}</h5>
+    {site.newsletterSidebarBody && <p>{site.newsletterSidebarBody}</p>}
+    <NewsletterForm site={site} variant="sidebar" leadMagnet="LM1" source="sidebar" />
+    <p class="side-micro">{site.newsletterMicrocopy ?? '週1通 / 1クリックで解除できます'}</p>
+  </div>
+
   {
     author && (
       <div>
@@ -65,13 +74,6 @@ const startLabelEn = homepage?.startHereLabelEn ?? 'START HERE'
       </div>
     )
   }
-
-  <div class="side-news">
-    <h5>{site.newsletterSidebarHeadline ?? '移行30日カレンダー（PDF）を無料配布中'}</h5>
-    {site.newsletterSidebarBody && <p>{site.newsletterSidebarBody}</p>}
-    <NewsletterForm site={site} variant="sidebar" leadMagnet="LM1" source="sidebar" />
-    <p class="side-micro">{site.newsletterMicrocopy ?? '週1通 / 1クリックで解除できます'}</p>
-  </div>
 
   {
     nav.topics.length > 0 && (

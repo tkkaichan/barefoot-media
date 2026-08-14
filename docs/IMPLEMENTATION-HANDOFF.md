@@ -11,7 +11,7 @@ docs/design-brief.md と docs/DESIGN.md は「モックが存在しない画面�
 
 | ファイル | 対応する実装 |
 |---|---|
-| design-mockups/plan-c2-portal-hero.html | トップページ（**確定版**。テーマは緑=デフォルトの `data-theme` 状態。右下のトーン切替UIとダミー写真・「仮素材」注記は実装に含めない） |
+| design-mockups/plan-c3-portal-typo.html | トップページ（**確定版**。2026-08-14 に plan-c2 から改修＝案A。ダミー写真・「仮素材」注記は実装に含めない。plan-c2 は _archive/ に退避） |
 | design-mockups/page-article.html | 記事詳細テンプレート（レビュー記事型。実測スペック表・畑テスト4項目・購入ボタン・FAQ・免責・著者ボックス・NEXT導線・追従目次・進捗バーを含む） |
 | design-mockups/page-privacy.html | プライバシーポリシー（「ローンチ時に記入」タグの箇所は本文確定後に差し替え） |
 | design-mockups/page-company.html | 運営者情報 |
@@ -23,11 +23,11 @@ docs/design-brief.md と docs/DESIGN.md は「モックが存在しない画面�
 
 注: **運営者名義は個人（近藤 泰樹）で確定**（2026-08-08）。フッターの著作権表記・運営者情報ページ・アフィリエイト表記はすべて個人名義で組む。SSC（スマートスタイル・コンプレックス株式会社）の社名はサイト上に出さない。
 
-旧案（plan-a / plan-b / plan-c 無印）は design-mockups/_archive/ に退避済み。検討過程の資料であり実装対象外。
+旧案（plan-a / plan-b / plan-c 無印 / plan-c2）は design-mockups/_archive/ に退避済み。検討過程の資料であり実装対象外。
 
 ## 移植の手順
 
-1. モック共通のCSSカスタムプロパティ（:root のトークン）を `src/styles/global.css` 等に抽出し、全ページで共有する。値は plan-c2 のものが正（--bg:#F4F4F4 / --accent:#42603B ほか）
+1. モック共通のCSSカスタムプロパティ（:root のトークン）を `src/styles/global.css` 等に抽出し、全ページで共有する。値は plan-c3 のものが正（plan-c2 と同値。--bg:#F4F4F4 / --accent:#42603B ほか）
 2. ヘッダー・フッター・メール登録ブロック・著者ボックス・記事カード・セクション見出し（上罫線＋mono英字ラベル）を共通Astroコンポーネントに切り出す。**見た目はモックのCSSをコピーして維持**
 3. フォント読み込みはモックと同じ Google Fonts 3書体（Shippori Mincho B1 / Noto Sans JP / IBM Plex Mono）。パフォーマンスのため font-display: swap とサブセット化は行ってよい（見た目に影響しない最適化は許可）
 4. 写真はすべてSanity管理の実写に差し替え。モック内のWikimedia素材とグラデーションプレースホルダー、「仮素材」「ダミー」注記は本番に持ち込まない

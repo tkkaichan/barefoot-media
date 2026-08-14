@@ -168,7 +168,10 @@ export type Homepage = {
   heroLead: string
   heroCtaLabel: string
   heroCtaHref: string
-  heroImage?: ImageWithMeta
+  /** ヒーロー右端の縦書きmonoラベル（960px以下は非表示） */
+  heroSideLabel?: string
+  /** ヒーロー直下のマーキー帯（5〜6枚） */
+  marqueeImages?: ImageWithMeta[]
   pickupPosts?: PostCard[]
   startHereTitle?: string
   startHereLabelEn?: string

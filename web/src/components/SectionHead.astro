@@ -1,17 +1,24 @@
 ---
 import Arrow from './Arrow.astro'
 
-/** 上罫線＋mono英字ラベル＋明朝見出し。PICKUP / LATEST / SERIES の行。 */
+/**
+ * 上罫線＋mono英字ラベル＋明朝見出し。PICKUP / LATEST / SERIES の行。
+ * ghost=true で見出し左上に透かし英字を出す（トップの PICKUP / LATEST のみ。
+ * 親要素に class="sec"（position:relative）が必要）。
+ */
 interface Props {
   en: string
   title: string
   moreHref?: string
   moreLabel?: string
   level?: 2 | 3
+  ghost?: boolean
 }
-const { en, title, moreHref, moreLabel = 'すべて見る', level = 2 } = Astro.props
+const { en, title, moreHref, moreLabel = 'すべて見る', level = 2, ghost = false } = Astro.props
 const Tag = `h${level}` as 'h2' | 'h3'
 ---
+
+{ghost && <span class="sec-ghost" aria-hidden="true">{en}</span>}
 
 <div class="sec-head">
   <span class="sec-en">{en}</span>

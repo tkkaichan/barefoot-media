@@ -23,9 +23,18 @@ export const homepage = defineType({
       type: 'text',
       rows: 2,
       group: 'hero',
-      description: '改行位置がそのまま反映される。意味の切れ目（読点）で改行すること',
-      initialValue: '裸足の感覚は、\n畑で確かめてからすすめます。',
+      description:
+        '改行位置がそのまま反映される。意味の切れ目（読点）で改行すること。2行目以降は自動で字下げ表示になる',
+      initialValue: '裸足の感覚は、\n畑で、たしかめる。',
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'heroSideLabel',
+      title: 'ヒーロー右端の縦書きラベル（mono英字）',
+      type: 'string',
+      group: 'hero',
+      description: '産地とテスト条件を示す短い英字。モバイルでは非表示になる',
+      initialValue: 'KUMAMOTO — YAMAGA — FIELD TESTED',
     }),
     defineField({
       name: 'heroLead',
@@ -53,22 +62,30 @@ export const homepage = defineType({
       initialValue: '/guide/',
       validation: (Rule) => Rule.required(),
     }),
+    // ヒーローは plan-c3 でタイポ主体になり写真を持たない。
+    // 代わりにヒーロー直下の写真マーキー帯で実写を見せる。
     defineField({
-      name: 'heroImage',
-      title: 'ヒーロー写真（4:3）',
-      type: 'image',
+      name: 'marqueeImages',
+      title: 'マーキー帯の写真（横長）',
+      type: 'array',
       group: 'hero',
-      options: { hotspot: true },
-      description: '畑の実写。全面写真ヒーローにはしない（右カラムに収まる）',
-      fields: [
-        defineField({
-          name: 'alt',
-          title: '代替テキスト',
-          type: 'string',
-          validation: (Rule) => Rule.required(),
+      description:
+        'ヒーロー直下を横に流れる帯。5〜6枚が目安（少なすぎるとループの継ぎ目が目立つ）。表示は300×220でトリミングされる',
+      of: [
+        defineArrayMember({
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            defineField({
+              name: 'alt',
+              title: '代替テキスト',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            }),
+          ],
         }),
       ],
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.max(8).warning('8枚を超えると初回表示が重くなる'),
     }),
 
     // --- キュレーション ---

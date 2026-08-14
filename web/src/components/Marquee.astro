@@ -1,0 +1,43 @@
+---
+import { altText, imageUrl, srcSet } from '../lib/image'
+import type { ImageWithMeta } from '../lib/image'
+
+/**
+ * ヒーロー直下の写真マーキー帯（plan-c3）。
+ * 同じ並びを2周分置いて translateX(-50%) でループさせる（CSSのみ・JS不要）。
+ * 2周目は読み上げ対象から外す。prefers-reduced-motion で停止（components.css）。
+ */
+interface Props {
+  images: ImageWithMeta[]
+  label?: string
+}
+const { images, label = '畑テストの風景写真' } = Astro.props
+
+// 高さ220px×幅300px（モバイル140×190）。CDNには2x相当まで用意させる
+const WIDTHS = [300, 600]
+const ASPECT = 300 / 220
+---
+
+{
+  images.length > 0 && (
+    <section class="marquee" aria-label={label}>
+      <div class="marquee-track">
+        {[0, 1].map((pass) =>
+          images.map((image) => (
+            <img
+              src={imageUrl(image, 300, 220)}
+              srcset={srcSet(image, WIDTHS, ASPECT)}
+              sizes="(max-width: 960px) 190px, 300px"
+              width="300"
+              height="220"
+              alt={pass === 0 ? altText(image, 'マーキー帯の写真') : ''}
+              aria-hidden={pass === 1 ? 'true' : undefined}
+              loading="lazy"
+              decoding="async"
+            />
+          )),
+        )}
+      </div>
+    </section>
+  )
+}

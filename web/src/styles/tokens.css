@@ -1,5 +1,5 @@
 /*
- * デザイントークン。値の正は docs/design-mockups/plan-c2-portal-hero.html の :root。
+ * デザイントークン。値の正は docs/design-mockups/plan-c3-portal-typo.html の :root。
  * ここを変えるとサイト全体の見た目が変わる。値の変更は DESIGN.md の更新とセットで行う。
  */
 :root {
@@ -31,7 +31,7 @@
   --container-pad: 28px;
   --measure: 720px; /* 記事本文の行長（680〜760px の中央値） */
   --sidebar: 320px;
-  --header-h: 60px;
+  --header-h: 64px;
 
   /* 角丸。ほぼ直角を維持する */
   --radius: 2px;
